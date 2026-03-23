@@ -1,0 +1,51 @@
+{
+  "kind": "collectionType",
+  "collectionName": "quizzes",
+  "info": {
+    "singularName": "quiz",
+    "pluralName": "quizzes",
+    "displayName": "quiz",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "quizName": {
+      "type": "string"
+    },
+    "questions": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::question.question",
+      "inversedBy": "quizzes"
+    },
+    "quizType": {
+      "type": "enumeration",
+      "enum": [
+        "chapter",
+        "procedure",
+        "definition-based"
+      ]
+    },
+    "relatedChapters": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::chapter.chapter",
+      "mappedBy": "quiz"
+    },
+    "relatedDefinitions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::definition.definition",
+      "mappedBy": "quiz"
+    },
+    "relatedProcedures": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::procedure.procedure",
+      "mappedBy": "quiz"
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "kind": "collectionType",
+  "collectionName": "appendices",
+  "info": {
+    "singularName": "appendix",
+    "pluralName": "appendices",
+    "displayName": "Appendix",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Name": {
+      "type": "string",
+      "required": true
+    },
+    "procedure": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::procedure.procedure",
+      "inversedBy": "appendices"
+    },
+    "description": {
+      "type": "blocks"
+    },
+    "status": {
+      "type": "string"
+    },
+    "issue_date": {
+      "type": "date",
+      "required": true
+    },
+    "replaces_date": {
+      "type": "date"
+    },
+    "title": {
+      "type": "string"
+    },
+    "media": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": true
+    }
+  }
+}

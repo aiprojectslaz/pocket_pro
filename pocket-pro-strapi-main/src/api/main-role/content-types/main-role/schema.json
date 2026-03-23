@@ -1,0 +1,28 @@
+{
+  "kind": "collectionType",
+  "collectionName": "main_roles",
+  "info": {
+    "singularName": "main-role",
+    "pluralName": "main-roles",
+    "displayName": "Main_role",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "description": {
+      "type": "blocks"
+    },
+    "procedure": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::procedure.procedure",
+      "inversedBy": "main_roles"
+    },
+    "role_title": {
+      "type": "string"
+    }
+  }
+}

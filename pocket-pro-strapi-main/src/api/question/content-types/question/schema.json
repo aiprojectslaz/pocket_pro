@@ -1,0 +1,45 @@
+{
+  "kind": "collectionType",
+  "collectionName": "questions",
+  "info": {
+    "singularName": "question",
+    "pluralName": "questions",
+    "displayName": "questions",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "questionText": {
+      "type": "text",
+      "required": true
+    },
+    "questionType": {
+      "type": "enumeration",
+      "enum": [
+        "multiple-choice",
+        "true/false"
+      ],
+      "required": true
+    },
+    "procedureRef": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::procedure.procedure",
+      "inversedBy": "questions"
+    },
+    "answerOptions": {
+      "type": "component",
+      "repeatable": true,
+      "component": "quiz-components.answer-option"
+    },
+    "quizzes": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::quiz.quiz",
+      "mappedBy": "questions"
+    }
+  }
+}

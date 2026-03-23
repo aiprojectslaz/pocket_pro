@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "sub_procedures",
+  "info": {
+    "singularName": "sub-procedure",
+    "pluralName": "sub-procedures",
+    "displayName": "sub_procedure",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "blocks",
+      "required": true
+    },
+    "sub_roles": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::procedure-role.procedure-role",
+      "mappedBy": "sub_procedure"
+    },
+    "procedure": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::procedure.procedure",
+      "inversedBy": "sub_procedures"
+    }
+  }
+}

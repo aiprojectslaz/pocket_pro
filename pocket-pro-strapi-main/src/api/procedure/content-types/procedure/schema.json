@@ -1,0 +1,96 @@
+{
+  "kind": "collectionType",
+  "collectionName": "procedures",
+  "info": {
+    "singularName": "procedure",
+    "pluralName": "procedures",
+    "displayName": "Procedure",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "procedure_number": {
+      "type": "string",
+      "required": true
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "issue_date": {
+      "type": "date"
+    },
+    "status": {
+      "type": "string"
+    },
+    "replaces_date": {
+      "type": "date"
+    },
+    "chapter": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::chapter.chapter",
+      "inversedBy": "procedures"
+    },
+    "rationale": {
+      "type": "text"
+    },
+    "supervision": {
+      "type": "text"
+    },
+    "definitions": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::definition.definition",
+      "mappedBy": "procedures"
+    },
+    "procedure_info": {
+      "type": "blocks"
+    },
+    "sub_procedures": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::sub-procedure.sub-procedure",
+      "mappedBy": "procedure"
+    },
+    "appendices": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::appendix.appendix",
+      "mappedBy": "procedure"
+    },
+    "main_roles": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::main-role.main-role",
+      "mappedBy": "procedure"
+    },
+    "governing_authority": {
+      "type": "blocks"
+    },
+    "associated_governance": {
+      "type": "blocks"
+    },
+    "bookmarks": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::bookmark.bookmark",
+      "inversedBy": "procedures"
+    },
+    "questions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::question.question",
+      "mappedBy": "procedureRef"
+    },
+    "quiz": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::quiz.quiz",
+      "inversedBy": "relatedProcedures"
+    }
+  }
+}

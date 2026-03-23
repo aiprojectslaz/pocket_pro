@@ -1,0 +1,37 @@
+{
+  "kind": "collectionType",
+  "collectionName": "definitions",
+  "info": {
+    "singularName": "definition",
+    "pluralName": "definitions",
+    "displayName": "Definition",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "term": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "definition": {
+      "type": "blocks",
+      "required": true
+    },
+    "procedures": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::procedure.procedure",
+      "inversedBy": "definitions"
+    },
+    "quiz": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::quiz.quiz",
+      "inversedBy": "relatedDefinitions"
+    }
+  }
+}
