@@ -100,8 +100,7 @@
 
 
 <script>
-import axios from 'axios';
-import qs from 'qs';
+import api from '@/services/api';
 import { authState } from '@/store/authState';
 
 export default {
@@ -124,33 +123,19 @@ export default {
     async performSearch() {
       if (!this.searchQuery.trim()) return;
       try {
-        const queryString = qs.stringify({
-          filters: {
-            $or: [
-              { name: { $contains: this.searchQuery } },
-              { procedure_number: { $contains: this.searchQuery } },
-              { procedure_info: { $contains: this.searchQuery } },
-              { rationale: { $contains: this.searchQuery } },
-              { 'appendices.title': { $contains: this.searchQuery } },
-              { 'appendices.description': { $contains: this.searchQuery } },
-              { 'definitions.term': { $contains: this.searchQuery } },
-              { 'definitions.definition': { $contains: this.searchQuery } },
-              { 'sub_procedures.name': { $contains: this.searchQuery } },
-              { 'sub_procedures.description': { $contains: this.searchQuery } },
-            ]
-          }
-        }, { encodeValuesOnly: true });
-
-        const token = localStorage.getItem('jwt');
-        const response = await axios.get(
-          `http://localhost:1337/api/procedures?populate=definitions,sub_procedures,appendices&${queryString}`,
-          { headers: token ? { Authorization: `Bearer ${token}` } : {} }
-        );
+        const response = await api.getProcedures();
+        const q = this.searchQuery.toLowerCase();
+        const results = (response.data || []).filter(p => {
+          const a = p.attributes;
+          return (a.name || '').toLowerCase().includes(q) ||
+                 (a.procedure_number || '').toLowerCase().includes(q) ||
+                 (a.rationale || '').toLowerCase().includes(q);
+        });
 
         this.$router.push({
           name: 'search-results',
           query: { q: this.searchQuery },
-          state: { results: response.data },
+          state: { results: { data: results } },
         });
       } catch (error) {
         console.error('Error performing search:', error);

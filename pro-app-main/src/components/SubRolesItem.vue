@@ -139,7 +139,7 @@
 
 <script>
 import api from '@/services/api';
-import axios from 'axios';
+import api from '@/services/api';
 
 export default {
   name: 'SubRolesItem',
@@ -161,10 +161,9 @@ export default {
 
       console.log('SubRole ID:', id); // Check if the ID is correct
 
-      axios.get(`http://localhost:1337/api/procedure-roles/${id}`)
+      api.getSubRole(id)
   .then(response => {
-    console.log('Sub Role Data:', response.data.data); // Check if data is returned
-    this.subRole = response.data.data; 
+    this.subRole = response.data;
   })
   .catch(error => {
     console.error('Error fetching procedure role (sub_role):', error);

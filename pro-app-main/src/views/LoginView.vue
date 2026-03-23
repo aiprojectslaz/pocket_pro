@@ -58,6 +58,7 @@
 
 <script>
 import { authState } from '@/store/authState';
+import { supabase } from '@/lib/supabase';
 
 export default {
   data() {
@@ -74,27 +75,15 @@ export default {
     async loginUser() {
       this.errorMessage = '';
       try {
-        const response = await fetch('http://localhost:1337/api/auth/local', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            identifier: this.email,
-            password: this.password,
-          }),
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: this.email,
+          password: this.password,
         });
 
-        if (!response.ok) {
-          throw new Error('Login failed');
-        }
+        if (error) throw error;
 
-        const data = await response.json();
-        const jwt = data.jwt;
-        const username = data.user.username;
-
-        authState.setJwt(jwt);
-        localStorage.setItem('username', username);
-        this.$store.dispatch('login', jwt);
-
+        authState.session = data.session;
+        this.$store.dispatch('login', data.session.access_token);
         this.$router.push('/procedure-list');
       } catch (error) {
         this.errorMessage = 'Login failed. Please check your credentials and try again.';

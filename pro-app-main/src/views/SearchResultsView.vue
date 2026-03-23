@@ -13,7 +13,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import api from '@/services/api';
 
 export default {
@@ -21,13 +20,7 @@ export default {
   methods: {
     async fetchProcedures() {
       try {
-        // axios.get(`http://localhost:1337/api/procedures/${this.id}?populate=definitions,sub_procedures,appendices,main_roles`)
-
-        const response = await axios.get('http://localhost:1337/api/procedures', {
-          params: {
-            populate: ['appendices', 'definitions', 'sub_procedures']  // Populate relationships
-          }
-        });
+        const response = await api.getProcedures();
         this.procedures = response.data;
         this.filteredProcedures = this.procedures;
       } catch (error) {

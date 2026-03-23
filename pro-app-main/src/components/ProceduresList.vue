@@ -13,27 +13,23 @@
 
 <script>
 import api from '@/services/api';
-import axios from 'axios';
 
 export default {
   name: 'ProceduresList',
-  components: {
-  },
-    data() {
-      return {
-        chapters: [],
-        procedures: []
-      }
-    },
-    mounted(){
-      axios.get('http://localhost:1337/api/procedures').then(response => {
-        this.procedures = response.data.data;
-        console.log(response.data.data);
-      }).catch(error => {
-        console.error('There was an error fetching the procedures:', error);
-      });
+  data() {
+    return {
+      procedures: []
     }
-};  
+  },
+  async mounted() {
+    try {
+      const response = await api.getProcedures();
+      this.procedures = response.data;
+    } catch (error) {
+      console.error('There was an error fetching the procedures:', error);
+    }
+  }
+};
 </script>
 <style scoped lang="scss">
 @import "bootstrap/scss/bootstrap";

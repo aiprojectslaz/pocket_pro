@@ -106,7 +106,7 @@
 
 <script>
 import api from '@/services/api';
-import axios from 'axios';
+import api from '@/services/api';
 
 export default {
   name: 'MainRoleItem',
@@ -130,11 +130,11 @@ export default {
 
       console.log('Procedure ID:', id); // Check if the ID is correct
 
-          axios.get(`http://localhost:1337/api/procedures/${id}?populate=main_roles`)
+          api.getProcedure(id)
       .then(response => {
-        if (response.data && response.data.data) {
-          this.procedure = response.data.data;
-          this.mainRoles = this.procedure.attributes.main_roles.data;
+        if (response.data) {
+          this.procedure = response.data;
+          this.mainRoles = this.procedure.attributes.main_roles?.data || [];
             console.log('mainRoles ID:', this.mainRoles); // Check if the ID is correct
 
 

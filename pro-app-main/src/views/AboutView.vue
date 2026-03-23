@@ -49,18 +49,17 @@
 
 
 <script>
-import axios from 'axios';
 import api from '@/services/api';
 
 export default {
   name: 'AboutView',
   data() {
     return {
-      aboutContent: null, // To store the About Us data
+      aboutContent: null,
     };
   },
-  mounted() {
-    this.fetchAboutContent();
+  async mounted() {
+    await this.fetchAboutContent();
   },
   methods: {
     goBack() {
@@ -68,9 +67,8 @@ export default {
     },
     async fetchAboutContent() {
       try {
-        const response = await axios.get('http://localhost:1337/api/about');
-        this.aboutContent = response.data.data.attributes;
-        console.log(this.aboutContent);
+        const response = await api.getAbout();
+        this.aboutContent = response.data?.attributes || null;
       } catch (error) {
         console.error('Error fetching About Us content:', error);
       }

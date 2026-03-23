@@ -274,20 +274,16 @@
 </template>
 
 <script>
-  import axios from 'axios';
   import api from '@/services/api';
-  import MainRoleItem from './MainRoleItem.vue'; // Import your component
-  import { mapState } from 'vuex';
-  import { authState } from '@/store/authState'; // Auth state management
-  import { bookmarksState } from '@/store/bookmarksState'; // Bookmark state management
+  import MainRoleItem from './MainRoleItem.vue';
+  import { authState } from '@/store/authState';
 
 export default {
   name: 'ProcedureItem',
-    components: {
-      MainRoleItem, // Register the component
+  components: {
+    MainRoleItem,
   },
   props: {
-    //procedure: Object, // added for bookmark but procedure is already defined
     id: {
       type: String,
       required: true
@@ -295,282 +291,107 @@ export default {
   },
   data() {
     return {
-      procedure: [], // Initialize as null to handle loading state
-      chapter: [], // To store the related chapter
-      main_roles: [], // To store the related chapter
-      subProcedures: [], // To store the related sub_procedures
-      definitions: [], // To store the related definitions
-      appendices: [], // To store the related appendices
-      userBookmarks: [], // User's current bookmarks
-      isBookmarked: false, // Track if the current procedure is bookmarked
+      procedure: null,
+      main_roles: [],
+      subProcedures: [],
+      definitions: [],
+      appendices: [],
+      isBookmarked: false,
       currentProcedureId: this.$route.params.id,
       error: null,
     };
   },
   computed: {
-      isLoggedIn() {
-        return authState.isLoggedIn;
-        //return this.$store.state.isLoggedIn;
-      },
+    isLoggedIn() {
+      return authState.isLoggedIn;
     },
-    async created() {
-      await this.fetchUserBookmarks();
-    },
+  },
+  async created() {
+    await this.fetchProcedure();
+    if (this.isLoggedIn) {
+      await this.fetchBookmarkStatus();
+    }
+  },
   watch: {
-    id(newId) {
-        this.fetchProcedure(); // Re-fetch procedure data when `id` changes
-    },
-    // Watch for changes in userBookmarks to update `isBookmarked`
-    userBookmarks: {
-      immediate: true,
-      handler(newBookmarks) {
-        this.isBookmarked = newBookmarks.some(bookmark => bookmark.id === this.procedureId);
-      },
-    },
     '$route.params.id': {
-      immediate: true,
-      handler(newId) {
-        this.currentProcedureId = newId;  // Update currentProcedureId when route changes
-        this.fetchProcedure();            // Fetch new procedure data
+      immediate: false,
+      async handler(newId) {
+        this.currentProcedureId = newId;
+        await this.fetchProcedure();
+        if (this.isLoggedIn) {
+          await this.fetchBookmarkStatus();
+        }
       }
     }
-},
-  beforeMount() {
-    this.fetchProcedure(); //needs to beforeMount because define procedure as null line 71
-  },
-    mounted() {
-    // Set initial state for `isBookmarked` based on the bookmarks passed to the component
-    this.isBookmarked = this.userBookmarks.some(bookmark => bookmark.id === this.procedureId);
   },
   methods: {
     goBack() {
       this.$router.go(-1);
     },
     async goToNextProcedure() {
-        try {
-          const currentId = parseInt(this.currentProcedureId, 10);
-          const nextId = currentId + 1;
-
-          // Fetch the next procedure data
-          const response = await axios.get(`http://localhost:1337/api/procedures/${nextId}?populate=definitions,sub_procedures,appendices,main_roles`);
-
-          // Check if the response has data, otherwise alert
-          if (response.data && response.data.data) {
-            // Navigate to the next procedure if it exists
-            this.$router.push({ name: 'procedure-item', params: { id: nextId } });
-          } else {
-            // Trigger the alert if no next procedure is available
-            alert('No next procedure available.');
-          }
-        } catch (error) {
-          // Check if the error is a 404 (not found) and alert the user
-          if (error.response && error.response.status === 404) {
-            alert('No next procedure available.');
-          } else {
-            console.error('Error fetching next procedure:', error);
-            this.error = 'Failed to fetch the next procedure.';
-          }
+      try {
+        const nextId = parseInt(this.currentProcedureId, 10) + 1;
+        const response = await api.getProcedure(nextId);
+        if (response.data) {
+          this.$router.push({ name: 'procedure-item', params: { id: nextId } });
+        } else {
+          alert('No next procedure available.');
         }
-      },
-    async fetchProcedure() {
-      axios.get(`http://localhost:1337/api/procedures/${this.id}?populate=definitions,sub_procedures,appendices,main_roles`)
-      
-        .then(response => {
-          // Check if response data is as expected
-          if (response.data && response.data.data) {
-            this.procedure = response.data.data;
-            this.definitions = this.procedure.attributes.definitions?.data;
-            this.subProcedures = this.procedure.attributes.sub_procedures?.data;
-            this.appendices = this.procedure.attributes.appendices?.data;
-            this.main_roles = this.procedure.attributes.main_roles?.data;
-            console.log('This Procedure:', this.procedure);
-
-            //console.log('Main Roles Data:', this.main_roles)
-            //const allRoleTitles = this.main_roles.map(item => item.attributes.role_title);
-            //console.log(allRoleTitles);
-            
-          } else {
-            console.error('Unexpected response format:', response.data);
-            this.error = 'Failed to load procedure data.';
-          }
-        })
-        .catch(error => {
-          console.error('Error fetching procedure:', error);
-          this.error = 'Failed to fetch procedure.';
-        });
-    },
-    async fetchUserBookmarks() {
-        const jwt = localStorage.getItem('jwt');
-
-        if (!jwt) {
-          console.log('User is not logged in');
-          this.$router.push('/login');
-          return;
-        }
-
-        try {
-          const userBookmarkIdURL = 'http://localhost:1337/api/users/me?populate=bookmarks';
-          const userBookmarkIdResponse = await fetch(userBookmarkIdURL, {
-            headers: {
-              'Authorization': `Bearer ${jwt}`
-            }
-          });
-
-          if (!userBookmarkIdResponse.ok) {
-            throw new Error('Network response was not ok');
-          }
-
-          const userBookmarkIdData = await userBookmarkIdResponse.json();
-          const userBookmarksData = userBookmarkIdData.bookmarks || []; // Ensure bookmarks is an array
-          this.userBookmarkIds = userBookmarksData.map(bookmark => bookmark.id);
-          //console.log('this.userBookmarkIds:', this.userBookmarkIds[0]); // Log the bookmark IDs
-
-          // Use the first bookmark ID to fetch bookmark data
-          if (this.userBookmarkIds.length > 0) {
-
-            const bookmarkId = this.userBookmarkIds[0];
-                      const bookmarkDataURL = `http://localhost:1337/api/bookmarks?filters[id][$eq]=${bookmarkId}&populate=*`;
-
-        // Fetch bookmark data
-        const bookmarkDataResponse = await fetch(bookmarkDataURL, {
-          headers: {
-            'Authorization': `Bearer ${jwt}`
-          }
-        });
-        if (!bookmarkDataResponse.ok) {
-        throw new Error('Network response was not ok');
+      } catch (error) {
+        alert('No next procedure available.');
       }
-          // Parse the JSON data
-            const bookmarkData = await bookmarkDataResponse.json();
-            this.userBookmarks = bookmarkData.data[0].attributes.procedures.data;
-            //console.log('this.userBookmarks:', this.userBookmarks);
-
-            } else {
-              this.userBookmarks = [];
-              console.log('No bookmarks found.');
-            }
-          } catch (error) {
-            console.error('Error fetching bookmarks:', error);
-            this.error = 'Error fetching bookmarks. Please try again later.';
-          }
+    },
+    async fetchProcedure() {
+      try {
+        const response = await api.getProcedure(this.id);
+        if (response.data) {
+          this.procedure = response.data;
+          this.definitions   = this.procedure.attributes.definitions?.data || [];
+          this.subProcedures = this.procedure.attributes.sub_procedures?.data || [];
+          this.appendices    = this.procedure.attributes.appendices?.data || [];
+          this.main_roles    = this.procedure.attributes.main_roles?.data || [];
+        } else {
+          this.error = 'Failed to load procedure data.';
+        }
+      } catch (error) {
+        console.error('Error fetching procedure:', error);
+        this.error = 'Failed to fetch procedure.';
+      }
+    },
+    async fetchBookmarkStatus() {
+      try {
+        this.isBookmarked = await api.isBookmarked(authState.user.id, this.id);
+      } catch (error) {
+        console.error('Error fetching bookmark status:', error);
+      }
     },
     async toggleBookmark() {
-      //console.log(this.isBookmarked);
-      //console.log('this.id:', this.id);
-      //console.log('this.userBookmarkIds:', this.userBookmarkIds[0]); // Log the bookmark IDs
-      //console.log('this.userBookmarks:', this.userBookmarks[0]);
-      
-      //console.log(Array.isArray(this.userBookmarks)); // Should log true
-      //console.log(this.userBookmarks.length); // Should show the number of bookmarks
-      //this.userBookmarks.forEach(bookmark => console.log(bookmark.id));
-      //console.log(this.userBookmarks.some(bookmark => bookmark.id === Number(this.id)));
-
-    if (this.isBookmarked) {
-      this.removeBookmark(); // Procedure is already bookmarked, so remove it
-      //this.isBookmarked = false; // or use an update method to re-fetch the state
-    } else {
-      this.addBookmark(); // Procedure is not bookmarked, so add it
-      //this.isBookmarked = true; // or use an update method to re-fetch the state
-    }
-     // Update button state????
-      //this.isBookmarked = this.userBookmarks.some(bookmark => bookmark.id === this.procedure.id);
-      // Update local state????
-      // this.isBookmarked = !this.isBookmarked;
-      //this.userBookmarks = updatedBookmarks;
-      const bookmarkAction = this.isBookmarked ? 'remove' : 'add';
-      const updatedBookmarks = this.isBookmarked
-        ? this.userBookmarks.filter(bookmarkId => bookmarkId !== this.id)
-        : [...this.userBookmarks, this.id];
-  },
-  async addBookmark(userBookmarkIds) {
-    const id = this.userBookmarkIds[0];
-    //console.log('this.userBookmarkIds:', id); 
-    //console.log('this.procedure.id:', this.procedure.id); 
-
-    try {
-      // Ensure JWT is available
-      const user = localStorage.getItem('username');
-      console.log('user:', user);
-      const jwt = localStorage.getItem('jwt');
-      if (!jwt) {
-        console.log('User is not logged in');
+      if (!this.isLoggedIn) {
         this.$router.push('/login');
         return;
       }
-
-      // Add the current procedure's ID to the bookmarks array
-      const updatedBookmarks = [...this.userBookmarks, { id: this.procedure.id }];
-
-      // Update the user's bookmarks on the server  
-      const response = await fetch(`http://localhost:1337/api/bookmarks/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${jwt}`
-        },
-        body: JSON.stringify({
-          data: {
-            procedures: updatedBookmarks.map(bookmark => bookmark.id)  // Update the procedures array or bookmarks field
-          }
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
+      if (this.isBookmarked) {
+        await this.removeBookmark();
+      } else {
+        await this.addBookmark();
       }
-
-      // Update the local state with the new bookmarks
-      this.isBookmarked = true;
-      //this.userBookmarks = updatedBookmarks;
-      console.log('Bookmark added successfully');
-      console.log(this.userBookmarks);
-    } catch (error) {
-      console.error('Error adding bookmark:', error);
-    }
-  },
-    async removeBookmark(userBookmarkIds) {
-      const id = this.userBookmarkIds[0];
-      //console.log('this.userBookmarkIds:', id);
-          
-      // Filter out the current procedure's ID from the bookmarks array
-      const updatedBookmarks = this.userBookmarks.filter(bookmark => bookmark.id !== this.procedure.id);
-
+    },
+    async addBookmark() {
       try {
-        // Ensure JWT is available
-        const jwt = localStorage.getItem('jwt');
-        if (!jwt) {
-          console.log('User is not logged in');
-          this.$router.push('/login');
-          return;
-        }
-
-        // Update the user's bookmarks on the server
-        const response = await fetch(`http://localhost:1337/api/bookmarks/${id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${jwt}`
-          },
-          body: JSON.stringify({
-            data: {
-              procedures: updatedBookmarks.map(bookmark => bookmark.id)  // Send only the IDs of the remaining bookmarks
-            }
-          })
-        });
-
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-
-        // Update the local state with the new bookmarks
+        await api.addBookmark(authState.user.id, this.id);
+        this.isBookmarked = true;
+      } catch (error) {
+        console.error('Error adding bookmark:', error);
+      }
+    },
+    async removeBookmark() {
+      try {
+        await api.removeBookmark(authState.user.id, this.id);
         this.isBookmarked = false;
-        this.userBookmarks = updatedBookmarks;
-        console.log('Bookmark removed successfully');
       } catch (error) {
         console.error('Error removing bookmark:', error);
       }
-    }
-
+    },
   }
 };
 </script>

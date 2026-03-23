@@ -182,7 +182,7 @@
 
 <script>
 import api from '@/services/api';
-import axios from 'axios';
+import api from '@/services/api';
 import SubRolesItem from '@/components/SubRolesItem.vue';
 
 export default {
@@ -207,16 +207,12 @@ export default {
 
       console.log('SubProcedure ID:', id); // Check if the ID is correct
 
-      axios.get(`http://localhost:1337/api/sub-procedures?filters[id][$eq]=${id}&populate=sub_roles`).then(response => {
-        console.log('SubProcedure Data:', response.data.data); // Check if data is returned
-        this.subProcedure = response.data.data;
-        //this.subRoles = this.subProcedure.attributes;
-        // Extract all sub_roles from subProcedures
-        this.subRoles = this.subProcedure.map(subProc => subProc.attributes.sub_roles.data).flat();
-        console.log('SubRoles:', this.subRoles);     
-
+      api.getSubProcedure(id).then(response => {
+        if (response.data) {
+          this.subProcedure = [response.data];
+          this.subRoles = response.data.attributes.procedure_roles?.data || [];
+        }
       }).catch(error => {
-        console.log("procedure-roles ERRROROROR")
         console.error('Error fetching sub-procedure:', error);
       });
 

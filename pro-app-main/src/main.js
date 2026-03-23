@@ -16,6 +16,9 @@ import 'vue-multiselect/dist/vue-multiselect.min.css'; // Optionally import the 
 
 library.add(fas);
 
+import { authState } from './store/authState';
+authState.init(); // Sync Supabase session on startup
+
 const app = createApp(App);
 //console.log('Router instance:', router); // Check if router is correctly instantiated
 app.use(store); // Use the store

@@ -72,31 +72,16 @@
 </template>
 
 <script>
-import axios from 'axios';
-import api from '@/services/api';
-
 export default {
-  name: 'ContactView',
+  name: 'RequestDemo',
   data() {
     return {
-      demoContent: null, // To store the Contact Us data
+      demoContent: null,
     };
-  },
-  mounted() {
-    this.fetchdemoContent();
   },
   methods: {
     goBack() {
       this.$router.go(-1);
-    },
-    async fetchdemoContent() {
-      try {
-        const response = await axios.get('http://localhost:1337/api/request-a-demo');
-        this.demoContent = response.data.data.attributes;
-        
-      } catch (error) {
-        console.error('Error fetching Contact Us content:', error);
-      }
     },
   },
 };

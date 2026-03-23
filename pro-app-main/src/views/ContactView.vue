@@ -72,7 +72,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import api from '@/services/api';
 
 export default {
@@ -91,8 +90,8 @@ export default {
     },
     async fetchContactContent() {
       try {
-        const response = await axios.get('http://localhost:1337/api/contact-us');
-        this.contactContent = response.data.data.attributes;
+        const response = await api.getContact();
+        this.contactContent = response.data?.attributes || null;
         
       } catch (error) {
         console.error('Error fetching Contact Us content:', error);

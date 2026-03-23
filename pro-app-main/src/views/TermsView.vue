@@ -38,24 +38,23 @@
 </template>
 
 <script>
-import axios from 'axios';
 import api from '@/services/api';
 
 export default {
   name: 'TermsView',
   data() {
     return {
-      termsContent: null, // To store the Terms data
+      termsContent: null,
     };
   },
-  mounted() {
-    this.fetchTermsContent();
+  async mounted() {
+    await this.fetchTermsContent();
   },
   methods: {
     async fetchTermsContent() {
       try {
-        const response = await axios.get('http://localhost:1337/api/t-and-c');
-        this.termsContent = response.data.data.attributes;
+        const response = await api.getTerms();
+        this.termsContent = response.data?.attributes || null;
       } catch (error) {
         console.error('Error fetching Terms content:', error);
       }

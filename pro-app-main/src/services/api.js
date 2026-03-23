@@ -1,54 +1,256 @@
 // src/services/api.js
-import axios from 'axios';
+// Wraps Supabase queries in a Strapi-compatible response shape so existing
+// components that access response.data.data / item.attributes.* keep working.
 
-const apiClient = axios.create({
-  baseURL: 'http://localhost:1337/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+import { supabase } from '@/lib/supabase'
 
-// Automatically add the token to the headers if available
-apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('jwt');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+// Convert a flat Supabase row into Strapi's { id, attributes: {...} } shape.
+// Nested arrays (joined relations) are wrapped in { data: [...] }.
+function toStrapi(item) {
+  if (!item) return null
+  const { id, ...rest } = item
+  const attributes = {}
+  for (const [key, val] of Object.entries(rest)) {
+    if (Array.isArray(val)) {
+      attributes[key] = { data: val.map(toStrapi) }
+    } else {
+      attributes[key] = val
+    }
   }
-  return config;
-}, (error) => {
-  return Promise.reject(error);
-});
+  return { id, attributes }
+}
+
+// Wrap an array result: { data: [strapiItem, ...] }
+function wrapList(rows) {
+  return { data: (rows || []).map(toStrapi) }
+}
+
+// Wrap a single result: { data: strapiItem }
+function wrapSingle(row) {
+  return { data: row ? toStrapi(row) : null }
+}
 
 export default {
-  getProcedure(id) {
-    return apiClient.get(`/procedures/${id}`);
+  // ── Procedures ────────────────────────────────────────────
+  async getProcedures() {
+    const { data, error } = await supabase
+      .from('procedures')
+      .select('*')
+      .order('procedure_number')
+    if (error) throw error
+    return wrapList(data)
   },
 
-  getProcedures() {
-    return apiClient.get('/procedures');
+  async getProcedure(id) {
+    const { data, error } = await supabase
+      .from('procedures')
+      .select(`
+        *,
+        definitions:procedure_definitions ( definition:definitions(*) ),
+        sub_procedures (*),
+        appendices (*),
+        main_roles (*)
+      `)
+      .eq('id', id)
+      .single()
+    if (error) throw error
+
+    // Flatten the junction-table join: [{definition: {...}}] → [{...}]
+    if (data.definitions) {
+      data.definitions = data.definitions.map(row => row.definition)
+    }
+
+    return wrapSingle(data)
   },
 
-  getDefinitions() {
-    return apiClient.get('/definitions');
+  // ── Definitions ───────────────────────────────────────────
+  async getDefinitions() {
+    const { data, error } = await supabase
+      .from('definitions')
+      .select('*')
+      .order('term')
+    if (error) throw error
+    return wrapList(data)
   },
 
-  getSubProcedures() {
-    return apiClient.get('/sub-procedures');
+  async getDefinition(id) {
+    const { data, error } = await supabase
+      .from('definitions')
+      .select('*')
+      .eq('id', id)
+      .single()
+    if (error) throw error
+    return wrapSingle(data)
   },
 
-  getSubRoles() {
-    return apiClient.get('/procedure-roles');
+  // ── Sub-procedures ────────────────────────────────────────
+  async getSubProcedures() {
+    const { data, error } = await supabase
+      .from('sub_procedures')
+      .select('*, procedure_roles(*)')
+    if (error) throw error
+    return wrapList(data)
   },
 
-  getAppendices() {
-    return apiClient.get('/appendices');
+  async getSubProcedure(id) {
+    const { data, error } = await supabase
+      .from('sub_procedures')
+      .select('*, procedure_roles(*)')
+      .eq('id', id)
+      .single()
+    if (error) throw error
+    return wrapSingle(data)
   },
 
-  getMainRoles() {
-    return apiClient.get('/main-roles');
+  // ── Roles ─────────────────────────────────────────────────
+  async getSubRoles() {
+    const { data, error } = await supabase
+      .from('procedure_roles')
+      .select('*')
+    if (error) throw error
+    return wrapList(data)
   },
 
-  getProcedureById(id) {
-    return apiClient.get(`/procedures/${id}`);
+  async getSubRole(id) {
+    const { data, error } = await supabase
+      .from('procedure_roles')
+      .select('*')
+      .eq('id', id)
+      .single()
+    if (error) throw error
+    return wrapSingle(data)
   },
-};
+
+  async getMainRoles() {
+    const { data, error } = await supabase
+      .from('main_roles')
+      .select('*')
+    if (error) throw error
+    return wrapList(data)
+  },
+
+  // ── Appendices ────────────────────────────────────────────
+  async getAppendices() {
+    const { data, error } = await supabase
+      .from('appendices')
+      .select('*')
+    if (error) throw error
+    return wrapList(data)
+  },
+
+  async getAppendix(id) {
+    const { data, error } = await supabase
+      .from('appendices')
+      .select('*')
+      .eq('id', id)
+      .single()
+    if (error) throw error
+    return wrapSingle(data)
+  },
+
+  // ── Quiz / Questions ──────────────────────────────────────
+  async getQuizzes() {
+    const { data, error } = await supabase
+      .from('quizzes')
+      .select('*')
+    if (error) throw error
+    return wrapList(data)
+  },
+
+  async getQuiz(id) {
+    const { data, error } = await supabase
+      .from('quizzes')
+      .select(`*, procedures:quiz_questions(question:questions(*))`)
+      .eq('id', id)
+      .single()
+    if (error) throw error
+    return wrapSingle(data)
+  },
+
+  async getQuestions() {
+    const { data, error } = await supabase
+      .from('questions')
+      .select('*, answer_options(*)')
+    if (error) throw error
+    return wrapList(data)
+  },
+
+  // ── Static content pages ──────────────────────────────────
+  async getAbout() {
+    const { data, error } = await supabase
+      .from('about')
+      .select('*')
+      .limit(1)
+      .single()
+    if (error) throw error
+    return wrapSingle(data)
+  },
+
+  async getPrivacy() {
+    const { data, error } = await supabase
+      .from('privacy')
+      .select('*')
+      .limit(1)
+      .single()
+    if (error) throw error
+    return wrapSingle(data)
+  },
+
+  async getTerms() {
+    const { data, error } = await supabase
+      .from('terms_conditions')
+      .select('*')
+      .limit(1)
+      .single()
+    if (error) throw error
+    return wrapSingle(data)
+  },
+
+  async getContact() {
+    const { data, error } = await supabase
+      .from('contact_us')
+      .select('*')
+      .limit(1)
+      .single()
+    if (error) throw error
+    return wrapSingle(data)
+  },
+
+  // ── Bookmarks ─────────────────────────────────────────────
+  // Returns an array of Strapi-shaped procedure objects for the given user.
+  async getUserBookmarkedProcedures(userId) {
+    const { data, error } = await supabase
+      .from('user_bookmarks')
+      .select('procedure:procedures(*)')
+      .eq('user_id', userId)
+    if (error) throw error
+    return (data || []).map(row => toStrapi(row.procedure))
+  },
+
+  async isBookmarked(userId, procedureId) {
+    const { data, error } = await supabase
+      .from('user_bookmarks')
+      .select('procedure_id')
+      .eq('user_id', userId)
+      .eq('procedure_id', procedureId)
+      .maybeSingle()
+    if (error) throw error
+    return !!data
+  },
+
+  async addBookmark(userId, procedureId) {
+    const { error } = await supabase
+      .from('user_bookmarks')
+      .insert({ user_id: userId, procedure_id: Number(procedureId) })
+    if (error) throw error
+  },
+
+  async removeBookmark(userId, procedureId) {
+    const { error } = await supabase
+      .from('user_bookmarks')
+      .delete()
+      .eq('user_id', userId)
+      .eq('procedure_id', Number(procedureId))
+    if (error) throw error
+  },
+}

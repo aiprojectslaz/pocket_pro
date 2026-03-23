@@ -1,21 +1,44 @@
 // src/store/authState.js
-// authState.js or equivalent
-import { reactive } from 'vue';
+import { reactive } from 'vue'
+import { supabase } from '@/lib/supabase'
 
 export const authState = reactive({
-  jwt: localStorage.getItem('jwt') || null,
+  session: null,
+
+  get jwt() {
+    return this.session?.access_token || null
+  },
+
+  get user() {
+    return this.session?.user || null
+  },
 
   get isLoggedIn() {
-    return !!this.jwt;
+    return !!this.session
   },
 
-  setJwt(token) {
-    this.jwt = token;
-    localStorage.setItem('jwt', token); // Update localStorage when JWT changes
+  // Call once in main.js to sync session on page load and listen for changes.
+  init() {
+    supabase.auth.getSession().then(({ data }) => {
+      this.session = data.session
+      if (data.session?.user?.email) {
+        localStorage.setItem('username', data.session.user.email)
+      }
+    })
+
+    supabase.auth.onAuthStateChange((_event, session) => {
+      this.session = session
+      if (session?.user?.email) {
+        localStorage.setItem('username', session.user.email)
+      } else {
+        localStorage.removeItem('username')
+        localStorage.removeItem('jwt')
+      }
+    })
   },
 
-  logout() {
-    this.jwt = null;
-    localStorage.removeItem('jwt'); // Remove JWT from localStorage on logout
-  }
-});
+  async logout() {
+    await supabase.auth.signOut()
+    this.session = null
+  },
+})

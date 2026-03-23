@@ -167,7 +167,7 @@
 
 <script>
 import api from '@/services/api';
-import axios from 'axios';
+import api from '@/services/api';
 
 export default {
   name: 'AppendixItem',
@@ -186,10 +186,8 @@ export default {
       const id = this.$route.params.id;
       const index = this.$route.params.index;
       console.log('appendix ID:', id); // Check if the ID is correct
-      axios.get(`http://localhost:1337/api/appendices?filters[id][$eq]=${id}`).then(response => {
-        console.log('appendix Data:', response.data.data); // Check if data is returned
-        this.appendix = response.data.data;
-        console.log(response,"JENNIFER!!!"); 
+      api.getAppendix(id).then(response => {
+        this.appendix = response.data ? [response.data] : [];
       }).catch(error => {
         console.error('Error fetching appendix:', error);
       });

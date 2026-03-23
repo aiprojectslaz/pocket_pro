@@ -38,24 +38,23 @@
 </template>
 
 <script>
-import axios from 'axios';
 import api from '@/services/api';
 
 export default {
   name: 'PrivacyView',
   data() {
     return {
-      privacyContent: null, // To store the Privacy data
+      privacyContent: null,
     };
   },
-  mounted() {
-    this.fetchPrivacyContent();
+  async mounted() {
+    await this.fetchPrivacyContent();
   },
   methods: {
     async fetchPrivacyContent() {
       try {
-        const response = await axios.get('http://localhost:1337/api/privacy');
-        this.privacyContent = response.data.data.attributes;
+        const response = await api.getPrivacy();
+        this.privacyContent = response.data?.attributes || null;
       } catch (error) {
         console.error('Error fetching Privacy content:', error);
       }

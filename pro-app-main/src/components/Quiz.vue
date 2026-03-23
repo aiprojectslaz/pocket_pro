@@ -112,7 +112,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import api from '@/services/api';
 import Multiselect from 'vue-multiselect';
 
 export default {
@@ -145,25 +145,17 @@ export default {
   },
   methods: {
     async fetchQuestions() {
-      // Fetch chapters from API
-      const response = await axios.get('http://localhost:1337/api/questions');
+      const response = await api.getQuestions();
       this.questions = response.data;
-      console.log('Questions', this.questions)
     },
 
     async fetchDefinitions() {
-      // Fetch definitions from API
-      const response = await axios.get('http://localhost:1337/api/definitions');
-      this.definitions = response.data;
-      console.log('Definitions', this.definitions)
+      const response = await api.getDefinitions();
+      this.definitions = response;
     },
     async startQuiz() {
-      // Fetch quiz questions based on parameters
-      const response = await axios.get('http://localhost:1337/api/quizzes', {
-        params: this.quizParams
-      });
+      const response = await api.getQuizzes();
       this.currentQuiz = response.data;
-      console.log('currentQuiz', this.currentQuiz)
       this.currentQuestionIndex = 0;
       this.selectedAnswers = {};
       this.quizCompleted = false;
@@ -171,10 +163,7 @@ export default {
       this.showQuizOptions = false;
     },
     async startFlashcards() {
-      // Fetch flashcards based on parameters
-      const response = await axios.get('http://localhost:1337/api/flashcards', {
-        params: this.flashcardParams
-      });
+      const response = await api.getDefinitions();
       this.currentFlashcards = response.data;
       this.cardFlipped = Array(this.currentFlashcards.length).fill(false);
       this.showFlashcards = false;

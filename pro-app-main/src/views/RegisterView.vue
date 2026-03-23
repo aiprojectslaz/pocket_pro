@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import { supabase } from '@/lib/supabase';
 
 export default {
   data() {
@@ -29,18 +29,24 @@ export default {
       username: '',
       email: '',
       password: '',
+      errorMessage: '',
     };
   },
   methods: {
     async handleRegister() {
+      this.errorMessage = '';
       try {
-        const response = await axios.post('http://localhost:1337/api/auth/local/register', {
-          username: this.username,
+        const { error } = await supabase.auth.signUp({
           email: this.email,
           password: this.password,
+          options: {
+            data: { username: this.username },
+          },
         });
-        console.log('Registration successful:', response.data);
+        if (error) throw error;
+        this.$router.push('/login');
       } catch (error) {
+        this.errorMessage = error.message || 'Registration failed.';
         console.error('Registration failed:', error);
       }
     },

@@ -134,7 +134,7 @@
 
 <script>
 import api from '@/services/api';
-import axios from 'axios';
+import api from '@/services/api';
 
 export default {
   name: 'DefinitionItem',
@@ -153,10 +153,8 @@ export default {
       const id = this.$route.params.id;
       const index = this.$route.params.index;
       console.log('definition ID:', id); // Check if the ID is correct
-      axios.get(`http://localhost:1337/api/definitions?filters[id][$eq]=${id}`).then(response => {
-        console.log('definition Data:', response.data.data); // Check if data is returned
-        this.definition = response.data.data;
-        console.log(response,"JENNIFER!!!"); 
+      api.getDefinition(id).then(response => {
+        this.definition = response.data ? [response.data] : [];
       }).catch(error => {
         console.error('Error fetching definition:', error);
       });

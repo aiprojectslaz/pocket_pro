@@ -31,17 +31,14 @@
 </template>
 
 <script>
-  import axios from 'axios';
   import api from '@/services/api';
-  import { mapState } from 'vuex';
-  import { authState } from '@/store/authState'; // Auth state management
-  import { bookmarksState } from '@/store/bookmarksState'; // Bookmark state management
+  import { authState } from '@/store/authState';
 
 export default {
   data() {
     return {
-      bookmarks: [], // Initialize as an empty array
-      error: [],
+      bookmarks: [],
+      error: null,
     };
   },
   computed: {
@@ -49,112 +46,33 @@ export default {
       return authState.isLoggedIn;
     }
   },
-  beforeMount() {
-    this.fetchBookmarks();
+  async beforeMount() {
+    await this.fetchBookmarks();
   },
   methods: {
     goBack() {
       this.$router.go(-1);
     },
     async fetchBookmarks() {
-      if (this.isLoggedIn) {
-        console.log('Fetching bookmarks for user:', this.user);
-
-        try {
-          const jwt = localStorage.getItem('jwt');
-          const userBookmarkIdURL = 'http://localhost:1337/api/users/me?populate=bookmarks';
-
-          // Fetch user data for bookmark ID
-          const userBookmarkIdResponse = await fetch(userBookmarkIdURL, {
-            headers: {
-              'Authorization': `Bearer ${jwt}`
-            }
-          });
-
-          if (!userBookmarkIdResponse.ok) {
-            throw new Error('Network response was not ok');
-          }
-
-          const userBookmarkIdData = await userBookmarkIdResponse.json();
-          const userBookmarks = userBookmarkIdData.bookmarks || [];
-          const userBookmarkId = userBookmarks.map(bookmark => bookmark.id);
-
-          if (userBookmarkId.length > 0) {
-            const bookmarkId = userBookmarkId[0];
-            const bookmarkDataURL = `http://localhost:1337/api/bookmarks?filters[id][$eq]=${userBookmarkId}&populate=*`;
-
-            const bookmarkDataResponse = await fetch(bookmarkDataURL, {
-              headers: {
-                'Authorization': `Bearer ${jwt}`
-              }
-            });
-
-            if (!bookmarkDataResponse.ok) {
-              throw new Error('Network response was not ok');
-            }
-
-            const bookmarkData = await bookmarkDataResponse.json();
-            this.bookmarks = bookmarkData.data[0].attributes.procedures.data;
-          } else {
-            this.bookmarks = [];
-            console.log('No bookmarks found.');
-          }
-        } catch (error) {
-          console.error('Error fetching bookmarks:', error);
-          this.error = 'Error fetching bookmarks. Please try again later.';
-        }
-      } else {
+      if (!this.isLoggedIn) {
         this.error = 'You need to be logged in to view your bookmarks.';
+        return;
+      }
+      try {
+        this.bookmarks = await api.getUserBookmarkedProcedures(authState.user.id);
+      } catch (error) {
+        console.error('Error fetching bookmarks:', error);
+        this.error = 'Error fetching bookmarks. Please try again later.';
       }
     },
-    async removeBookmark(bookmarkId) {
+    async removeBookmark(procedureId) {
       if (!this.isLoggedIn) {
-        console.log('User is not logged in');
         this.$router.push('/login');
         return;
       }
-
       try {
-        const jwt = localStorage.getItem('jwt');
-        const userBookmarkIdURL = 'http://localhost:1337/api/users/me?populate=bookmarks';
-        const userBookmarkIdResponse = await fetch(userBookmarkIdURL, {
-          headers: {
-            'Authorization': `Bearer ${jwt}`
-          }
-        });
-
-        if (!userBookmarkIdResponse.ok) {
-          throw new Error('Network response was not ok');
-        }
-
-        const userBookmarkIdData = await userBookmarkIdResponse.json();
-        const userBookmarks = userBookmarkIdData.bookmarks || [];
-        const userBookmarkId = userBookmarks.map(bookmark => bookmark.id);
-
-        if (userBookmarkId.length > 0) {
-          const userId = userBookmarkId[0];
-          const updatedBookmarks = this.bookmarks.filter(bookmark => bookmark.id !== bookmarkId);
-
-          const response = await fetch(`http://localhost:1337/api/bookmarks/${userId}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${jwt}`
-            },
-            body: JSON.stringify({
-              data: {
-                procedures: updatedBookmarks.map(bookmark => bookmark.id)
-              }
-            })
-          });
-
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-
-          this.bookmarks = updatedBookmarks;
-          console.log('Bookmark removed successfully');
-        }
+        await api.removeBookmark(authState.user.id, procedureId);
+        this.bookmarks = this.bookmarks.filter(b => b.id !== procedureId);
       } catch (error) {
         console.error('Error removing bookmark:', error);
         this.error = 'Failed to remove bookmark.';
