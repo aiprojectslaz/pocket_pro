@@ -61,6 +61,15 @@
           <fa :icon="isBookmarked ? 'bookmark' : ['far', 'bookmark']" class="me-1" />
           {{ isBookmarked ? 'Bookmarked' : 'Bookmark' }}
         </button>
+        <a
+          v-if="procedure?.attributes?.source_pdf_url"
+          :href="procedure.attributes.source_pdf_url"
+          target="_blank"
+          rel="noopener"
+          class="btn btn-sm btn-brand"
+        >
+          <fa icon="arrow-up-right-from-square" class="me-1" />Source PDF
+        </a>
       </div>
     </div>
 
