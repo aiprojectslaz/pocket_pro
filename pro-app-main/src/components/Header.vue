@@ -4,21 +4,14 @@
   <nav class="app-header navbar navbar-expand-lg">
     <div class="container-fluid">
 
-      <!-- Brand: logo icon + org name + org pill -->
+      <!-- Brand: PP logo + org name + org pill -->
       <RouterLink to="/" class="navbar-brand d-flex align-items-center gap-2">
-        <!-- Tenant logo if set, else initials box -->
         <img
-          v-if="tenant?.logo"
-          :src="tenant.logo"
+          src="@/assets/logos/Logo1_BlueBG_cropped.png"
           height="36"
-          :alt="orgName"
+          alt="Pocket Procedures"
           loading="lazy"
-          class="tenant-logo"
         />
-        <span v-else class="logo-initials" aria-hidden="true">
-          {{ initials }}
-        </span>
-
         <span class="product-name">{{ orgName }}</span>
         <span class="org-pill">{{ orgName }}</span>
       </RouterLink>
@@ -128,15 +121,6 @@ const { tenant, orgName, contentLabel } = useTenant()
 
 const isLoggedIn = computed(() => authState.isLoggedIn)
 
-// First 2 letters of org name for the fallback initials box
-const initials = computed(() =>
-  orgName.value
-    .split(' ')
-    .slice(0, 2)
-    .map(w => w[0])
-    .join('')
-    .toUpperCase()
-)
 
 async function logout() {
   await authState.logout()
@@ -174,29 +158,6 @@ async function performSearch() {
   .navbar {
     background: transparent;
     padding: 0.5rem 0;
-  }
-
-  /* Tenant logo image */
-  .tenant-logo {
-    height: 36px;
-    width: auto;
-    border-radius: 4px;
-  }
-
-  /* Fallback initials box */
-  .logo-initials {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    background: var(--brand-primary);
-    color: #fff;
-    font-size: 0.8rem;
-    font-weight: 700;
-    border-radius: 6px;
-    letter-spacing: 0.05em;
-    flex-shrink: 0;
   }
 
   /* Product / org name text */
