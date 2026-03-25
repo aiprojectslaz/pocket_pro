@@ -35,7 +35,7 @@ export default {
   async getProcedures() {
     const { data, error } = await supabase
       .from('procedures')
-      .select('*')
+      .select('*, chapters(title)')
       .order('procedure_number')
     if (error) throw error
     return wrapList(data)
@@ -46,6 +46,7 @@ export default {
       .from('procedures')
       .select(`
         *,
+        chapters(title),
         definitions:procedure_definitions ( definition:definitions(*) ),
         sub_procedures (*),
         appendices (*),
@@ -146,6 +147,192 @@ export default {
       .single()
     if (error) throw error
     return wrapSingle(data)
+  },
+
+  // ── Chapters ──────────────────────────────────────────────
+  async getChapters() {
+    const { data, error } = await supabase
+      .from('chapters')
+      .select('*')
+      .order('title')
+    if (error) throw error
+    return wrapList(data)
+  },
+
+  async createChapter(payload) {
+    const { data, error } = await supabase
+      .from('chapters')
+      .insert(payload)
+      .select()
+      .single()
+    if (error) throw error
+    return wrapSingle(data)
+  },
+
+  // ── Procedure CRUD ────────────────────────────────────────
+  async createProcedure(payload) {
+    const { data, error } = await supabase
+      .from('procedures')
+      .insert(payload)
+      .select()
+      .single()
+    if (error) throw error
+    return wrapSingle(data)
+  },
+
+  async updateProcedure(id, payload) {
+    const { data, error } = await supabase
+      .from('procedures')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) throw error
+    return wrapSingle(data)
+  },
+
+  async deleteProcedure(id) {
+    const { error } = await supabase
+      .from('procedures')
+      .delete()
+      .eq('id', id)
+    if (error) throw error
+  },
+
+  // ── Sub-procedure CRUD ────────────────────────────────────
+  async createSubProcedure(payload) {
+    const { data, error } = await supabase
+      .from('sub_procedures')
+      .insert(payload)
+      .select()
+      .single()
+    if (error) throw error
+    return wrapSingle(data)
+  },
+
+  async updateSubProcedure(id, payload) {
+    const { data, error } = await supabase
+      .from('sub_procedures')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) throw error
+    return wrapSingle(data)
+  },
+
+  async deleteSubProcedure(id) {
+    const { error } = await supabase
+      .from('sub_procedures')
+      .delete()
+      .eq('id', id)
+    if (error) throw error
+  },
+
+  // ── Definition CRUD ───────────────────────────────────────
+  async createDefinition(payload) {
+    const { data, error } = await supabase
+      .from('definitions')
+      .insert(payload)
+      .select()
+      .single()
+    if (error) throw error
+    return wrapSingle(data)
+  },
+
+  async updateDefinition(id, payload) {
+    const { data, error } = await supabase
+      .from('definitions')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) throw error
+    return wrapSingle(data)
+  },
+
+  async deleteDefinition(id) {
+    const { error } = await supabase
+      .from('definitions')
+      .delete()
+      .eq('id', id)
+    if (error) throw error
+  },
+
+  async linkDefinitionToProcedure(procedureId, definitionId) {
+    const { error } = await supabase
+      .from('procedure_definitions')
+      .insert({ procedure_id: procedureId, definition_id: definitionId })
+    if (error) throw error
+  },
+
+  async unlinkDefinitionFromProcedure(procedureId, definitionId) {
+    const { error } = await supabase
+      .from('procedure_definitions')
+      .delete()
+      .eq('procedure_id', procedureId)
+      .eq('definition_id', definitionId)
+    if (error) throw error
+  },
+
+  // ── Appendix CRUD ─────────────────────────────────────────
+  async createAppendix(payload) {
+    const { data, error } = await supabase
+      .from('appendices')
+      .insert(payload)
+      .select()
+      .single()
+    if (error) throw error
+    return wrapSingle(data)
+  },
+
+  async updateAppendix(id, payload) {
+    const { data, error } = await supabase
+      .from('appendices')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) throw error
+    return wrapSingle(data)
+  },
+
+  async deleteAppendix(id) {
+    const { error } = await supabase
+      .from('appendices')
+      .delete()
+      .eq('id', id)
+    if (error) throw error
+  },
+
+  // ── Main Role CRUD ────────────────────────────────────────
+  async createMainRole(payload) {
+    const { data, error } = await supabase
+      .from('main_roles')
+      .insert(payload)
+      .select()
+      .single()
+    if (error) throw error
+    return wrapSingle(data)
+  },
+
+  async updateMainRole(id, payload) {
+    const { data, error } = await supabase
+      .from('main_roles')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) throw error
+    return wrapSingle(data)
+  },
+
+  async deleteMainRole(id) {
+    const { error } = await supabase
+      .from('main_roles')
+      .delete()
+      .eq('id', id)
+    if (error) throw error
   },
 
   // ── Quiz / Questions ──────────────────────────────────────

@@ -9,7 +9,12 @@ import DefinitionItem from '@/components/DefinitionItem.vue';
 import AppendixItem from '@/components/AppendixItem.vue';
 import SearchResultsView from '@/views/SearchResultsView.vue';
 import Quiz from '@/components/Quiz.vue';
-import AdminDashboard from '@/views/AdminDashboard.vue';
+import AdminLayout from '@/views/admin/AdminLayout.vue';
+import AdminProcedures from '@/views/admin/AdminProcedures.vue';
+import AdminSubProcedures from '@/views/admin/AdminSubProcedures.vue';
+import AdminDefinitions from '@/views/admin/AdminDefinitions.vue';
+import AdminAppendices from '@/views/admin/AdminAppendices.vue';
+import AdminMainRoles from '@/views/admin/AdminMainRoles.vue';
 import { getAuthState } from '@/utils/auth';
 import Modal from '@/components/Modal.vue';
 
@@ -132,9 +137,16 @@ const routes = [
   },
   {
     path: '/admin',
-    name: 'admin',
-    component: AdminDashboard,
+    component: AdminLayout,
     meta: { requiresAuth: true, isAdmin: true },
+    children: [
+      { path: '', redirect: '/admin/procedures' },
+      { path: 'procedures',     name: 'admin-procedures',     component: AdminProcedures },
+      { path: 'sub-procedures', name: 'admin-sub-procedures', component: AdminSubProcedures },
+      { path: 'definitions',    name: 'admin-definitions',    component: AdminDefinitions },
+      { path: 'appendices',     name: 'admin-appendices',     component: AdminAppendices },
+      { path: 'main-roles',     name: 'admin-main-roles',     component: AdminMainRoles },
+    ],
   },
   {
     path: '/modal',

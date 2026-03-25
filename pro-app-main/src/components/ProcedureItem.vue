@@ -1,31 +1,57 @@
 <template>
   <div class="procedure-item container py-4">
 
-  <div class="buttons-row container py-4">
-    <!-- Left-aligned buttons -->
-    <div class="left-buttons">
-      <button @click="goBack" class="btn btn-secondary btn-sm ">Back</button>
-      <button @click="goToNextProcedure" class="btn btn-secondary btn-sm">Next Procedure</button>
-    </div>
-
-    <!-- Right-aligned Bookmark button -->
-    <div class="right-buttons">
-      <button @click="toggleBookmark" v-if="isLoggedIn" class="btn btn-outline-secondary btn-sm">
-        {{ isBookmarked ? 'Remove from Bookmarks' : 'Add to Bookmarks' }}
-      </button>
-    </div>
-  </div>
-
   <div v-if="error">{{ error }}</div>
   <router-view />
 
-<!-- Ticker Section -->
-      <h1 class="mb-3">{{ procedure?.attributes?.procedure_number }} {{ procedure?.attributes?.name }}</h1><hr>
-      <div class="procedure-ticker mb-3 d-flex justify-content-between">
-        <div class="status badge rounded-pill">{{ procedure?.attributes?.status }}</div>
-        <div class="issue-date"><strong>Issued:</strong> {{ procedure?.attributes?.issue_date }}</div>
-        <div class="replaces-date"><strong>Replaces:</strong> {{ procedure?.attributes?.replaces_date }}</div>
+  <!-- Procedure Header Card -->
+  <div class="procedure-header-card mb-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-2">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+          <RouterLink to="/procedure-list">Procedures</RouterLink>
+        </li>
+        <li class="breadcrumb-item" v-if="procedure?.attributes?.chapters?.title">
+          {{ procedure.attributes.chapters.title }}
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+          {{ procedure?.attributes?.procedure_number }} {{ procedure?.attributes?.name }}
+        </li>
+      </ol>
+    </nav>
+
+    <!-- Title + status -->
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+      <h1 class="mb-0">{{ procedure?.attributes?.procedure_number }} {{ procedure?.attributes?.name }}</h1>
+      <span class="status-pill" :class="procedure?.attributes?.status?.toLowerCase()">
+        {{ procedure?.attributes?.status }}
+      </span>
+    </div>
+
+    <!-- Meta row -->
+    <div class="meta-row text-muted mb-3">
+      <span v-if="procedure?.attributes?.issue_date"><strong>Issued:</strong> {{ procedure?.attributes?.issue_date }}</span>
+      <span class="meta-sep" v-if="procedure?.attributes?.replaces_date">·</span>
+      <span v-if="procedure?.attributes?.replaces_date"><strong>Replaces:</strong> {{ procedure?.attributes?.replaces_date }}</span>
+      <span class="meta-sep" v-if="procedure?.attributes?.chapters?.title">·</span>
+      <span v-if="procedure?.attributes?.chapters?.title">{{ procedure.attributes.chapters.title }}</span>
+    </div>
+
+    <hr class="my-2">
+
+    <!-- Action row -->
+    <div class="action-row d-flex align-items-center gap-2 flex-wrap">
+      <button @click="goBack" class="btn btn-outline-secondary btn-sm">← Back</button>
+      <button @click="goToNextProcedure" class="btn btn-outline-secondary btn-sm">Next →</button>
+      <div class="ms-auto">
+        <button @click="toggleBookmark" v-if="isLoggedIn" class="btn btn-sm"
+          :class="isBookmarked ? 'btn-warning' : 'btn-outline-secondary'">
+          {{ isBookmarked ? '★ Bookmarked' : '☆ Bookmark' }}
+        </button>
       </div>
+    </div>
+  </div>
 
 <!-- Rationale & Supervision Section -->
     <div v-if="procedure?.attributes?.rationale"  class="rationale mb-4">
@@ -61,12 +87,12 @@
       <h2 class="accordion-header" :id="`heading${index}`">
         <button
           class="accordion-button collapsed" type="button" data-bs-toggle="collapse" :data-bs-target="`#collapse${index}`" aria-expanded="false" :aria-controls="`collapse${index}`" >
-          <span class="icon-spacing grey-icon"><fa icon="user-check"/></span> {{ role?.attributes?.role_title }}
+          <span class="icon-spacing grey-icon"><fa :icon="roleIcon(role?.attributes?.role_title)"/></span> {{ role?.attributes?.role_title }}
         </button>
       </h2>
 
     <!-- Accordion Body -->
-      <div :id="`collapse${index}`"  class="accordion-collapse collapse" :aria-labelledby="`heading${index}`" data-bs-parent="#mainRolesAccordion" >
+      <div :id="`collapse${index}`"  class="accordion-collapse collapse" :aria-labelledby="`heading${index}`" >
         <div class="accordion-body">
           <!-- Loop through the description array for each role -->
           <div v-for="(item, i) in role?.attributes?.description" :key="i">
@@ -155,7 +181,7 @@
               Governing Authority
             </button>
           </h2>
-          <div id="governingAuthorityCollapse" class="accordion-collapse collapse" aria-labelledby="governingAuthorityHeading" data-bs-parent="#governingAuthorityAccordion">
+          <div id="governingAuthorityCollapse" class="accordion-collapse collapse" aria-labelledby="governingAuthorityHeading">
             <div class="accordion-body">
               <div v-for="(authority, index) in procedure?.attributes?.governing_authority" :key="index" class="mb-3">
                 <p>{{ authority?.children[0]?.text }}</p>
@@ -173,7 +199,7 @@
               Associated Governance
             </button>
           </h2>
-          <div id="associatedGovernanceCollapse" class="accordion-collapse collapse" aria-labelledby="associatedGovernanceHeading" data-bs-parent="#associatedGovernanceAccordion">
+          <div id="associatedGovernanceCollapse" class="accordion-collapse collapse" aria-labelledby="associatedGovernanceHeading">
             <div class="accordion-body">
               <div v-for="(authority, index) in procedure?.attributes?.associated_governance" :key="index" class="mb-3">
                 <p>{{ authority?.children[0]?.text }}</p>
@@ -198,7 +224,7 @@
             </h2>
 
           <!-- Accordion Body -->
-            <div :id="`collapse${index}`"  class="accordion-collapse collapse" :aria-labelledby="`heading${index}`" data-bs-parent="#definitionsAccordion" >
+            <div :id="`collapse${index}`"  class="accordion-collapse collapse" :aria-labelledby="`heading${index}`" >
               <div class="accordion-body">
 
                 <!-- Loop through the definition array for each item -->
@@ -325,6 +351,19 @@ export default {
     }
   },
   methods: {
+    roleIcon(title) {
+      const map = {
+        'Police Officer': 'user-shield',
+        'Officer in Charge': 'user-tie',
+        'Member': 'user',
+        'Court Officer': 'gavel',
+        'Custodial Officer': 'user-lock',
+        'Unit Commander': 'star',
+        'Supervisor': 'user-check',
+        'Investigating Officer': 'search',
+      };
+      return map[title] || 'user';
+    },
     goBack() {
       this.$router.go(-1);
     },
@@ -397,6 +436,39 @@ export default {
 </script>
 
 <style scoped lang="scss">
+
+  .procedure-header-card {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-left: 4px solid var(--brand-primary);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+
+    .breadcrumb {
+      font-size: 0.82rem;
+      color: #6c757d;
+      a { color: var(--brand-primary); text-decoration: none; }
+    }
+
+    h1 { font-size: 1.4rem; font-weight: 700; }
+
+    .meta-row {
+      font-size: 0.85rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      .meta-sep { color: #adb5bd; }
+    }
+
+    .status-pill {
+      border-radius: 1rem;
+      padding: 3px 12px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      &.amended { background: #fef3c7; color: #92400e; }
+      &.active   { background: #d1fae5; color: #065f46; }
+    }
+  }
 
   .procedure-item {
     h1, h2, h3 {

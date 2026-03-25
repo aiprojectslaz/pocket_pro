@@ -1,14 +1,15 @@
 <template>
-<header class="app-header text-white py-2">
+<header class="app-header py-2">
 
 <!-- Navbar -->
-<nav class="app-header navbar navbar-expand-lg navbar-dark">
+<nav class="app-header navbar navbar-expand-lg navbar-light">
   <!-- Container wrapper -->
   <div class="container-fluid">
 
     <!-- Navbar brand -->
-    <RouterLink to="/" class="navbar-brand mt-2 mt-lg-0">
-      <img src="@/assets/logos/Logo1_BlueBG_cropped.png" height="40" alt="MDB Logo" loading="lazy" />
+    <RouterLink to="/" class="navbar-brand mt-2 mt-lg-0 d-flex align-items-center">
+      <img src="@/assets/logos/Logo1_BlueBG_cropped.png" height="40" alt="Pocket Procedures" loading="lazy" />
+      <span class="org-pill ms-2">Toronto Police Service</span>
     </RouterLink>
 
     <!-- Search Bar-->
@@ -53,11 +54,11 @@
 
       <!-- Left links -->
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item" v-if="isLoggedIn"><RouterLink to="/" class="nav-link text-white">Home</RouterLink></li>
-        <li class="nav-item" v-if="isLoggedIn"><RouterLink to="/procedure-list" class="nav-link text-white">Procedures</RouterLink></li>
-        <li class="nav-item" v-if="isLoggedIn"><RouterLink to="/bookmarks" class="nav-link text-white">Bookmarks</RouterLink></li>
-        <li class="nav-item" v-if="isLoggedIn"><RouterLink to="/quizzes" class="nav-link text-white">Quiz</RouterLink></li>
-        <li class="nav-item" v-if="isLoggedIn"><RouterLink to="/admin" class="nav-link text-white">Dashboard</RouterLink></li>
+        <li class="nav-item" v-if="isLoggedIn"><RouterLink to="/" class="nav-link">Home</RouterLink></li>
+        <li class="nav-item" v-if="isLoggedIn"><RouterLink to="/procedure-list" class="nav-link">Procedures</RouterLink></li>
+        <li class="nav-item" v-if="isLoggedIn"><RouterLink to="/bookmarks" class="nav-link">Bookmarks</RouterLink></li>
+        <li class="nav-item" v-if="isLoggedIn"><RouterLink to="/quizzes" class="nav-link">Quiz</RouterLink></li>
+        <li class="nav-item" v-if="isLoggedIn && isAdmin"><RouterLink to="/admin" class="nav-link">Admin</RouterLink></li>
       </ul>
       <!-- Left links -->
 
@@ -113,6 +114,9 @@ export default {
     isLoggedIn() {
       return authState.isLoggedIn;
     },
+    isAdmin() {
+      return authState.isAdmin;
+    },
   },
   methods: {
     logout() {
@@ -147,20 +151,23 @@ export default {
 
 <style scoped lang="scss">
   .app-header {
-    background-color: #113065;
-
-    .logo img {
-      max-height: 75px;
-    }
+    background-color: #ffffff;
+    border-bottom: 3px solid var(--brand-primary);
 
     nav {
-      background-color: #113065;
+      background-color: #ffffff;
     }
 
-    .main-nav .nav-link {
-      margin-right: 15px;
-      &:hover {
-        text-decoration: underline;
+    .nav-link {
+      color: var(--brand-primary);
+      font-weight: 500;
+      margin-right: 4px;
+      border-radius: 4px;
+      padding: 4px 10px;
+
+      &:hover, &.router-link-active {
+        background-color: var(--brand-primary-lighter);
+        color: var(--brand-primary);
       }
     }
 
@@ -169,10 +176,21 @@ export default {
         width: auto;
         margin-right: 10px;
       }
-
       .btn {
         padding: 0.375rem 0.75rem;
+        color: var(--brand-primary);
       }
     }
+  }
+
+  .org-pill {
+    background-color: var(--brand-primary);
+    color: #ffffff;
+    border-radius: 1rem;
+    padding: 2px 10px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
   }
 </style>

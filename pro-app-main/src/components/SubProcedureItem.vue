@@ -118,7 +118,7 @@
         </h2>
 
       <!-- Accordion Body -->
-        <div :id="`collapse${index}`"  class="accordion-collapse collapse" :aria-labelledby="`heading${index}`" data-bs-parent="#mainRolesAccordion" >
+        <div :id="`collapse${index}`"  class="accordion-collapse collapse" :aria-labelledby="`heading${index}`" >
           <div class="accordion-body">
             <!-- Loop through the description array for each role -->
             <div v-for="(item, i) in role?.attributes?.description" :key="i">
