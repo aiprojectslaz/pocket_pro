@@ -12,7 +12,6 @@
           alt="Pocket Procedures"
           loading="lazy"
         />
-        <span class="org-pill">{{ orgName }}</span>
       </RouterLink>
 
       <!-- Search bar (desktop, logged-in) -->
@@ -167,19 +166,6 @@ async function performSearch() {
     padding: 0.5rem 0;
   }
 
-
-  /* Org name pill */
-  .org-pill {
-    display: inline-block;
-    background: var(--brand-primary);
-    color: #fff;
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    padding: 2px 10px;
-    border-radius: 999px;
-    white-space: nowrap;
-  }
 
   /* Nav links — !important beats Bootstrap's --bs-nav-link-color */
   .nav-link {

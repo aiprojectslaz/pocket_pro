@@ -41,12 +41,18 @@
   --color-background: var(--vt-c-white);
   --color-background-soft: var(--vt-c-white-soft);
   --color-background-mute: var(--vt-c-white-mute);
+  --color-background-primary: #ffffff;
 
   --color-border: var(--vt-c-divider-light-2);
   --color-border-hover: var(--vt-c-divider-light-1);
+  --color-border-tertiary: #e5e7eb;
 
   --color-heading: var(--vt-c-text-light-1);
   --color-text: var(--vt-c-text-light-1);
+  --color-text-tertiary: #9ca3af;
+
+  --border-radius-md: 6px;
+  --border-radius-lg: 10px;
 
   --section-gap: 160px;
 }

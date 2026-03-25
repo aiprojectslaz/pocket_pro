@@ -1,5 +1,6 @@
 <script setup>
 import HeaderComponent from '@/components/Header.vue';
+import OrgBar from '@/components/OrgBar.vue';
 import FooterComponent from '@/components/Footer.vue';
 import Modal from '@/components/Modal.vue';
 </script>
@@ -7,6 +8,7 @@ import Modal from '@/components/Modal.vue';
 <template>
   <div class="app-container">
     <HeaderComponent v-if="$route.name !== 'home'" />
+    <OrgBar v-if="$route.name !== 'home'" />
     <main class="content">
       <RouterView />
     </main>
