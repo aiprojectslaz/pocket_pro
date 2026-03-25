@@ -95,11 +95,17 @@ const routes = [
     name: 'login',
     component: () => import('../views/LoginView.vue'),
   },
+  {
+    path: '/reset-password',
+    name: 'reset-password',
+    component: () => import('../views/ResetPasswordView.vue'),
+  },
 
   {
     path: '/search',
     name: 'search-results',
     component: SearchResultsView,
+    meta: { requiresAuth: true },
   },
   {
     path: '/contact',

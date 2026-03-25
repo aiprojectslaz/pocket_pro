@@ -35,7 +35,7 @@
           </div>
         </div>
         <div class="col">
-          <a href="#!">Forgot password?</a>
+          <RouterLink to="/reset-password">Forgot password?</RouterLink>
         </div>
       </div>
 
