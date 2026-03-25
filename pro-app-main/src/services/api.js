@@ -11,7 +11,7 @@ function toStrapi(item) {
   const { id, ...rest } = item
   const attributes = {}
   for (const [key, val] of Object.entries(rest)) {
-    if (Array.isArray(val)) {
+    if (Array.isArray(val) && (val.length === 0 || typeof val[0]?.id === 'number')) {
       attributes[key] = { data: val.map(toStrapi) }
     } else {
       attributes[key] = val
