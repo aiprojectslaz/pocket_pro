@@ -7,16 +7,21 @@
       </div>
     </div>
     <div v-else>
-      No procedures found.
+      No {{ contentLabelPlural.toLowerCase() }} found.
     </div>
   </div>
 </template>
 
 <script>
 import api from '@/services/api';
+import { useTenant } from '@/composables/useTenant';
 
 export default {
   name: 'SearchResultsView',
+  setup() {
+    const { contentLabelPlural } = useTenant();
+    return { contentLabelPlural };
+  },
   methods: {
     async fetchProcedures() {
       try {

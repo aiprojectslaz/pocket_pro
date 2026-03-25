@@ -10,7 +10,8 @@ export function useTenant() {
   }
 
   const contentLabel = computed(() => tenant.value?.content_label ?? 'Procedure')
+  const contentLabelPlural = computed(() => tenant.value?.content_label_plural ?? 'Procedures')
   const orgName = computed(() => tenant.value?.org_name ?? 'Pocket Procedures')
 
-  return { tenant, setTenant, contentLabel, orgName }
+  return { tenant, setTenant, contentLabel, contentLabelPlural, orgName }
 }

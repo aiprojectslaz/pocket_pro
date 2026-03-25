@@ -1,6 +1,6 @@
 <template>
   <div class="procedures-list">
-    <h1 class="mb-4">Procedures</h1>
+    <h1 class="mb-4">{{ contentLabelPlural }}</h1>
     <ul class="list-unstyled procedure-cards">
       <li v-for="procedure in procedures" :key="procedure.id">
         <RouterLink
@@ -34,9 +34,14 @@
 
 <script>
 import api from '@/services/api';
+import { useTenant } from '@/composables/useTenant';
 
 export default {
   name: 'ProceduresList',
+  setup() {
+    const { contentLabelPlural } = useTenant();
+    return { contentLabelPlural };
+  },
   data() {
     return {
       procedures: []

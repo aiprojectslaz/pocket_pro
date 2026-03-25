@@ -9,7 +9,7 @@
 
     <!-- Breadcrumb -->
     <nav class="proc-breadcrumb" aria-label="breadcrumb">
-      <RouterLink to="/procedure-list" class="bc-link">Procedures</RouterLink>
+      <RouterLink to="/procedure-list" class="bc-link">{{ contentLabelPlural }}</RouterLink>
       <span class="bc-sep">›</span>
       <span v-if="procedure?.attributes?.chapter?.title" class="bc-link bc-chapter">
         {{ procedure.attributes.chapter.title }}
@@ -82,7 +82,7 @@
   <div class="procedure-content">
     
 <!-- PROCEDURES SECTION -->
-    <h2>Procedure</h2><hr>
+    <h2>{{ contentLabel }}</h2><hr>
     <div class="procedure-info" v-if="procedure?.attributes?.procedure_info?.length">
       <div v-for="(info, index) in procedure?.attributes?.procedure_info" :key="index">
         <div v-for="(procedure_info, i) in procedure?.attributes?.procedure_info" :key="i">
@@ -317,11 +317,16 @@
   import api from '@/services/api';
   import MainRoleItem from './MainRoleItem.vue';
   import { authState } from '@/store/authState';
+  import { useTenant } from '@/composables/useTenant';
 
 export default {
   name: 'ProcedureItem',
   components: {
     MainRoleItem,
+  },
+  setup() {
+    const { contentLabel, contentLabelPlural } = useTenant();
+    return { contentLabel, contentLabelPlural };
   },
   props: {
     id: {

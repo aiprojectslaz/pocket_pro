@@ -8,7 +8,7 @@
 <div class="bookmarks-content container py-4">
   <h1 class="text-center mb-4">My Bookmarks</h1>
     <div v-if="bookmarks.length === 0">
-      <p>No bookmarks yet. Start bookmarking procedures to see them here.</p>
+      <p>No bookmarks yet. Start bookmarking {{ contentLabelPlural.toLowerCase() }} to see them here.</p>
     </div>
     <div v-else>
       <div class="bookmarked-procedures">
@@ -33,8 +33,13 @@
 <script>
   import api from '@/services/api';
   import { authState } from '@/store/authState';
+  import { useTenant } from '@/composables/useTenant';
 
 export default {
+  setup() {
+    const { contentLabelPlural } = useTenant();
+    return { contentLabelPlural };
+  },
   data() {
     return {
       bookmarks: [],
