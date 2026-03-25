@@ -1,103 +1,105 @@
 <template>
-<header class="app-header text-white py-2">
+<header class="app-header">
 
-<!-- Navbar -->
-<nav class="app-header navbar navbar-expand-lg navbar-dark">
-  <!-- Container wrapper -->
-  <div class="container-fluid">
+  <nav class="app-header navbar navbar-expand-lg">
+    <div class="container-fluid">
 
-    <!-- Navbar brand -->
-    <RouterLink to="/" class="navbar-brand mt-2 mt-lg-0">
-      <img src="@/assets/logos/Logo1_BlueBG_cropped.png" height="40" alt="MDB Logo" loading="lazy" />
-    </RouterLink>
+      <!-- Brand: logo + product name + org pill -->
+      <RouterLink to="/" class="navbar-brand d-flex align-items-center gap-2">
+        <img src="@/assets/logos/Logo1_BlueBG_cropped.png" height="36" alt="Pocket Procedures" loading="lazy" />
+        <span class="product-name">Pocket Procedures</span>
+        <span class="org-pill">Toronto Police Service</span>
+      </RouterLink>
 
-    <!-- Search Bar-->
-    <div class="search-bar d-flex" v-if="isLoggedIn">
-      <input type="text" v-model="searchQuery" @keyup.enter="performSearch" class="form-control me-2" placeholder="Search procedures..."/>
-      <a @click="performSearch" class="btn d-flex align-items-center hidden-arrow" href="#" role="button" aria-expanded="false">
-        <fa icon="search" inverse/>
-      </a>
-    </div>
-    <!-- Search Bar -->
+      <!-- Search bar (desktop, logged-in) -->
+      <div class="search-bar d-none d-lg-flex align-items-center mx-3 flex-grow-1" v-if="isLoggedIn">
+        <input
+          type="text"
+          v-model="searchQuery"
+          @keyup.enter="performSearch"
+          class="form-control form-control-sm"
+          placeholder="Search procedures…"
+        />
+        <button @click="performSearch" class="btn btn-sm btn-ghost ms-1">
+          <fa icon="search" />
+        </button>
+      </div>
 
-    <!-- Toggle button -->
-    <!-- Menu Icon -->
-    <button class="navbar-toggler" type="button" data-mdb-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <!-- Mobile toggler -->
+      <button
+        class="navbar-toggler border-0"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarMain"
+        aria-controls="navbarMain"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <fa icon="bars" />
+      </button>
 
-      <!-- Show this dropdown only if the user is logged in -->
-      <div class="dropdown" v-if="isLoggedIn">
-        <a class="btn dropdown-toggle d-flex align-items-center hidden-arrow" href="#" role="button" id="navbarDropdownMenuAvatar" data-bs-toggle="dropdown" aria-expanded="false">
-          <fa icon="bars" inverse />
-        </a>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton1">
-          <li class="dropdown-item"><RouterLink to="/" class="nav-link">Home</RouterLink></li>
-          <li class="dropdown-item"><RouterLink to="/procedure-list" class="nav-link">Procedures</RouterLink></li>
-          <li class="dropdown-item"><RouterLink to="/bookmarks" class="nav-link">Bookmarks</RouterLink></li>
-          <li class="dropdown-item"><RouterLink to="/quizzes" class="nav-link">Quiz</RouterLink></li>
-          <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item" href="#">My profile</a></li>
-          <li><a class="dropdown-item" href="#">Settings</a></li>
-          <li class="dropdown-item" @click="logout"><RouterLink to="/" class="nav-link">Logout</RouterLink></li>
+      <!-- Collapsible nav -->
+      <div class="collapse navbar-collapse" id="navbarMain">
+
+        <!-- Center nav links -->
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0" v-if="isLoggedIn">
+          <li class="nav-item">
+            <RouterLink to="/procedure-list" class="nav-link" active-class="nav-link-active">Procedures</RouterLink>
+          </li>
+          <li class="nav-item">
+            <RouterLink to="/bookmarks" class="nav-link" active-class="nav-link-active">Bookmarks</RouterLink>
+          </li>
+          <li class="nav-item">
+            <RouterLink to="/quizzes" class="nav-link" active-class="nav-link-active">Quiz</RouterLink>
+          </li>
+          <li class="nav-item">
+            <RouterLink to="/admin" class="nav-link" active-class="nav-link-active">Dashboard</RouterLink>
+          </li>
         </ul>
-      </div>
 
-      <!-- Show this simple Login link if the user is not logged in -->
-      <div v-else class="d-flex align-items-center">
-        <RouterLink to="/login" class="nav-link">Login</RouterLink>
-      </div>
-    </button>
-    <!-- Menu Icon -->
+        <!-- Mobile search -->
+        <div class="d-flex d-lg-none mb-2 px-1" v-if="isLoggedIn">
+          <input
+            type="text"
+            v-model="searchQuery"
+            @keyup.enter="performSearch"
+            class="form-control form-control-sm me-1"
+            placeholder="Search procedures…"
+          />
+          <button @click="performSearch" class="btn btn-sm btn-outline-secondary">
+            <fa icon="search" />
+          </button>
+        </div>
 
-    <!-- Collapsible wrapper -->
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-
-      <!-- Left links -->
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item" v-if="isLoggedIn"><RouterLink to="/" class="nav-link text-white">Home</RouterLink></li>
-        <li class="nav-item" v-if="isLoggedIn"><RouterLink to="/procedure-list" class="nav-link text-white">Procedures</RouterLink></li>
-        <li class="nav-item" v-if="isLoggedIn"><RouterLink to="/bookmarks" class="nav-link text-white">Bookmarks</RouterLink></li>
-        <li class="nav-item" v-if="isLoggedIn"><RouterLink to="/quizzes" class="nav-link text-white">Quiz</RouterLink></li>
-        <li class="nav-item" v-if="isLoggedIn"><RouterLink to="/admin" class="nav-link text-white">Dashboard</RouterLink></li>
-      </ul>
-      <!-- Left links -->
-
-      <!-- Right elements -->
-      <div class="d-flex align-items-center">
-
-        <!-- Account Button (Only visible if logged in) -->
-        <div v-if="isLoggedIn">
-          <div class="dropdown">
-            <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+        <!-- Right: Account or Login -->
+        <div class="d-flex align-items-center ms-auto">
+          <div v-if="isLoggedIn" class="dropdown">
+            <button
+              class="btn btn-sm btn-outline-brand dropdown-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
               Account
             </button>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton1">
+            <ul class="dropdown-menu dropdown-menu-end">
               <li><a class="dropdown-item" href="#">My profile</a></li>
               <li><a class="dropdown-item" href="#">Settings</a></li>
               <li><hr class="dropdown-divider"></li>
-              <li class="dropdown-item" @click="logout">
-                <RouterLink to="/" class="nav-link">Logout</RouterLink>
-              </li>
+              <li><a class="dropdown-item" href="#" @click.prevent="logout">Logout</a></li>
             </ul>
+          </div>
+          <div v-else>
+            <RouterLink to="/login" class="btn btn-sm btn-brand">Login</RouterLink>
           </div>
         </div>
 
-        <!-- Login Link (Only visible if not logged in) -->
-        <div v-else class="d-flex align-items-center">
-          <RouterLink to="/login" class="nav-link">Login</RouterLink>
-        </div>
-
       </div>
-      <!-- Right elements -->
     </div>
-    <!-- Collapsible wrapper -->
-  </div>
-  <!-- Container wrapper -->
-</nav>
-<!-- Navbar -->
+  </nav>
 
 </header>
 </template>
-
 
 <script>
 import api from '@/services/api';
@@ -115,10 +117,9 @@ export default {
     },
   },
   methods: {
-    logout() {
-      authState.logout();
-      this.$store.dispatch('logout');
-      this.$router.push('/');
+    async logout() {
+      await authState.logout();
+      this.$router.push('/login');
     },
     async performSearch() {
       if (!this.searchQuery.trim()) return;
@@ -131,7 +132,6 @@ export default {
                  (a.procedure_number || '').toLowerCase().includes(q) ||
                  (a.rationale || '').toLowerCase().includes(q);
         });
-
         this.$router.push({
           name: 'search-results',
           query: { q: this.searchQuery },
@@ -146,33 +146,97 @@ export default {
 </script>
 
 <style scoped lang="scss">
-  .app-header {
-    background-color: #113065;
+.app-header {
+  background: #ffffff;
+  border-bottom: 2px solid var(--brand-primary);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 
-    .logo img {
-      max-height: 75px;
-    }
+  .navbar {
+    background: transparent;
+    padding: 0.5rem 0;
+  }
 
-    nav {
-      background-color: #113065;
-    }
+  .product-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--brand-primary);
+    white-space: nowrap;
+  }
 
-    .main-nav .nav-link {
-      margin-right: 15px;
-      &:hover {
-        text-decoration: underline;
-      }
-    }
+  .org-pill {
+    display: inline-block;
+    background: var(--brand-primary);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 2px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
 
-    .search-bar {
-      .form-control {
-        width: auto;
-        margin-right: 10px;
-      }
+  .nav-link {
+    color: #374151;
+    font-size: 0.9rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    transition: background 0.15s, color 0.15s;
 
-      .btn {
-        padding: 0.375rem 0.75rem;
-      }
+    &:hover {
+      background: var(--brand-primary-light);
+      color: var(--brand-primary);
     }
   }
+
+  :deep(.router-link-active.nav-link),
+  .nav-link-active {
+    background: var(--brand-primary-light);
+    color: var(--brand-primary) !important;
+    font-weight: 600;
+  }
+
+  .search-bar {
+    max-width: 320px;
+
+    .form-control {
+      border-color: #d1d5db;
+      font-size: 0.875rem;
+
+      &:focus {
+        border-color: var(--brand-primary);
+        box-shadow: 0 0 0 2px var(--brand-primary-light);
+      }
+    }
+
+    .btn-ghost {
+      color: #6b7280;
+      background: transparent;
+      border: none;
+      &:hover { color: var(--brand-primary); }
+    }
+  }
+
+  .btn-outline-brand {
+    border-color: var(--brand-primary);
+    color: var(--brand-primary);
+    font-size: 0.875rem;
+    &:hover {
+      background: var(--brand-primary);
+      color: #fff;
+    }
+  }
+
+  .btn-brand {
+    background: var(--brand-primary);
+    color: #fff;
+    border-color: var(--brand-primary);
+    font-size: 0.875rem;
+    &:hover { opacity: 0.88; }
+  }
+
+  .navbar-toggler {
+    color: var(--brand-primary);
+    padding: 0.25rem 0.5rem;
+  }
+}
 </style>

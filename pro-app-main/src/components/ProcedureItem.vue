@@ -1,31 +1,71 @@
 <template>
   <div class="procedure-item container py-4">
 
-  <div class="buttons-row container py-4">
-    <!-- Left-aligned buttons -->
-    <div class="left-buttons">
-      <button @click="goBack" class="btn btn-secondary btn-sm ">Back</button>
-      <button @click="goToNextProcedure" class="btn btn-secondary btn-sm">Next Procedure</button>
-    </div>
-
-    <!-- Right-aligned Bookmark button -->
-    <div class="right-buttons">
-      <button @click="toggleBookmark" v-if="isLoggedIn" class="btn btn-outline-secondary btn-sm">
-        {{ isBookmarked ? 'Remove from Bookmarks' : 'Add to Bookmarks' }}
-      </button>
-    </div>
-  </div>
-
   <div v-if="error">{{ error }}</div>
   <router-view />
 
-<!-- Ticker Section -->
-      <h1 class="mb-3">{{ procedure?.attributes?.procedure_number }} {{ procedure?.attributes?.name }}</h1><hr>
-      <div class="procedure-ticker mb-3 d-flex justify-content-between">
-        <div class="status badge rounded-pill">{{ procedure?.attributes?.status }}</div>
-        <div class="issue-date"><strong>Issued:</strong> {{ procedure?.attributes?.issue_date }}</div>
-        <div class="replaces-date"><strong>Replaces:</strong> {{ procedure?.attributes?.replaces_date }}</div>
+  <!-- ── Procedure header card ─────────────────────────────────────── -->
+  <div class="proc-header-card mb-4">
+
+    <!-- Breadcrumb -->
+    <nav class="proc-breadcrumb" aria-label="breadcrumb">
+      <RouterLink to="/procedure-list" class="bc-link">Procedures</RouterLink>
+      <span class="bc-sep">›</span>
+      <span v-if="procedure?.attributes?.chapter?.title" class="bc-link bc-chapter">
+        {{ procedure.attributes.chapter.title }}
+      </span>
+      <span v-if="procedure?.attributes?.chapter?.title" class="bc-sep">›</span>
+      <span class="bc-current">
+        {{ procedure?.attributes?.procedure_number }} {{ procedure?.attributes?.name }}
+      </span>
+    </nav>
+
+    <!-- Title row -->
+    <div class="d-flex align-items-center gap-2 mt-2 mb-1">
+      <h1 class="proc-title mb-0">{{ procedure?.attributes?.procedure_number }} {{ procedure?.attributes?.name }}</h1>
+      <span v-if="procedure?.attributes?.status === 'Amended'" class="proc-amended-badge">Amended</span>
+    </div>
+
+    <!-- Meta row -->
+    <div class="proc-meta-row">
+      <span v-if="procedure?.attributes?.issue_date">
+        <strong>Issued:</strong> {{ procedure?.attributes?.issue_date }}
+      </span>
+      <span v-if="procedure?.attributes?.replaces_date">
+        <strong>Replaces:</strong> {{ procedure?.attributes?.replaces_date }}
+      </span>
+      <span v-if="procedure?.attributes?.chapter?.title" class="proc-meta-chapter">
+        {{ procedure.attributes.chapter.title }}
+      </span>
+    </div>
+
+    <hr class="my-2" />
+
+    <!-- Action row -->
+    <div class="proc-action-row">
+      <div class="proc-nav-btns">
+        <button @click="goBack" class="btn btn-sm btn-outline-secondary">
+          <fa icon="arrow-left" class="me-1" />Previous
+        </button>
+        <button @click="goToNextProcedure" class="btn btn-sm btn-outline-secondary">
+          Next<fa icon="arrow-right" class="ms-1" />
+        </button>
       </div>
+      <div class="proc-action-btns">
+        <button
+          @click="toggleBookmark"
+          v-if="isLoggedIn"
+          class="btn btn-sm"
+          :class="isBookmarked ? 'btn-brand' : 'btn-outline-brand'"
+        >
+          <fa :icon="isBookmarked ? 'bookmark' : ['far', 'bookmark']" class="me-1" />
+          {{ isBookmarked ? 'Bookmarked' : 'Bookmark' }}
+        </button>
+      </div>
+    </div>
+
+  </div>
+  <!-- ── end header card ───────────────────────────────────────────── -->
 
 <!-- Rationale & Supervision Section -->
     <div v-if="procedure?.attributes?.rationale"  class="rationale mb-4">
@@ -533,22 +573,112 @@ export default {
     margin-bottom: 0.5rem; /* Add spacing between list items */
   }
 
-  .buttons-row {
+  /* ── Procedure header card ──────────────────────────────── */
+  .proc-header-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    border-left: 4px solid var(--brand-primary);
+  }
+
+  /* Breadcrumb */
+  .proc-breadcrumb {
+    font-size: 0.8rem;
+    color: #6b7280;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .bc-link {
+    color: var(--brand-primary);
+    text-decoration: none;
+    &:hover { text-decoration: underline; }
+  }
+
+  .bc-chapter {
+    color: #6b7280;
+    pointer-events: none;
+  }
+
+  .bc-sep {
+    color: #9ca3af;
+  }
+
+  .bc-current {
+    color: #374151;
+    font-weight: 500;
+  }
+
+  /* Title */
+  .proc-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--brand-primary);
+  }
+
+  /* Amended badge */
+  .proc-amended-badge {
+    background: #fef3c7;
+    color: #92400e;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 999px;
+    border: 1px solid #fcd34d;
+    white-space: nowrap;
+  }
+
+  /* Meta row */
+  .proc-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+  }
+
+  .proc-meta-chapter {
+    color: var(--brand-primary-muted);
+    font-style: italic;
+  }
+
+  /* Action row */
+  .proc-action-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
+    flex-wrap: wrap;
+    gap: 0.5rem;
   }
 
-  /* Left buttons (Back & Next Procedure) */
-  .left-buttons {
+  .proc-nav-btns {
     display: flex;
-    gap: 10px; /* Adds space between the Back and Next buttons */
+    gap: 0.5rem;
   }
 
-  /* Right button (Bookmark Toggle) */
-  .right-buttons {
+  .proc-action-btns {
     display: flex;
+    gap: 0.5rem;
+  }
+
+  .btn-outline-brand {
+    border-color: var(--brand-primary);
+    color: var(--brand-primary);
+    &:hover {
+      background: var(--brand-primary);
+      color: #fff;
+    }
+  }
+
+  .btn-brand {
+    background: var(--brand-primary);
+    color: #fff;
+    border-color: var(--brand-primary);
+    &:hover { opacity: 0.88; }
   }
 </style>
 
