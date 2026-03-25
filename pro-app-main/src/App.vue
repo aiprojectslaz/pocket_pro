@@ -1,22 +1,18 @@
 <script setup>
 import HeaderComponent from '@/components/Header.vue';
 import FooterComponent from '@/components/Footer.vue';
+import Modal from '@/components/Modal.vue';
 </script>
 
 <template>
   <div class="app-container">
-  
-    <!-- Header: Could include a logo, navigation links, or other global components -->
     <HeaderComponent />
-
-    <!-- Main content area where routed components will be rendered -->
     <main class="content">
       <RouterView />
     </main>
-
-    <!-- Footer: This is global and typically included across all pages -->
     <FooterComponent />
-
+    <!-- Global modal — rendered via Teleport to <body> -->
+    <Modal />
   </div>
 </template>
 

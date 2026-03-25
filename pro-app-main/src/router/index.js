@@ -11,7 +11,6 @@ import SearchResultsView from '@/views/SearchResultsView.vue';
 import Quiz from '@/components/Quiz.vue';
 import AdminDashboard from '@/views/AdminDashboard.vue';
 import { getAuthState } from '@/utils/auth';
-import Modal from '@/components/Modal.vue';
 
 const routes = [
   {
@@ -136,12 +135,6 @@ const routes = [
     path: '/admin',
     name: 'admin',
     component: AdminDashboard,
-    meta: { requiresAuth: true, isAdmin: true },
-  },
-  {
-    path: '/modal',
-    name: 'modal',
-    component: Modal,
     meta: { requiresAuth: true, isAdmin: true },
   },
   {
