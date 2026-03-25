@@ -6,11 +6,11 @@ import Modal from '@/components/Modal.vue';
 
 <template>
   <div class="app-container">
-    <HeaderComponent />
+    <HeaderComponent v-if="$route.name !== 'home'" />
     <main class="content">
       <RouterView />
     </main>
-    <FooterComponent />
+    <FooterComponent v-if="$route.name !== 'home'" />
     <!-- Global modal — rendered via Teleport to <body> -->
     <Modal />
   </div>
