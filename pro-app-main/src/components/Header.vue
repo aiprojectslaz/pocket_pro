@@ -4,15 +4,14 @@
   <nav class="app-header navbar navbar-expand-lg">
     <div class="container-fluid">
 
-      <!-- Brand: PP logo + org name + org pill -->
+      <!-- Brand: PP logo + org pill -->
       <RouterLink to="/" class="navbar-brand d-flex align-items-center gap-2">
         <img
-          src="@/assets/logos/Logo1_BlueBG_cropped.png"
-          height="36"
+          src="@/assets/logos/Logo1_WhiteBG_small.png"
+          height="40"
           alt="Pocket Procedures"
           loading="lazy"
         />
-        <span class="product-name">{{ orgName }}</span>
         <span class="org-pill">{{ orgName }}</span>
       </RouterLink>
 
@@ -168,13 +167,6 @@ async function performSearch() {
     padding: 0.5rem 0;
   }
 
-  /* Product / org name text */
-  .product-name {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--brand-primary);
-    white-space: nowrap;
-  }
 
   /* Org name pill */
   .org-pill {
