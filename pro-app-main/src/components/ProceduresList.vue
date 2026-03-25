@@ -190,7 +190,7 @@ const groupedProcedures = computed(() => {
   font-weight: 500;
   color: #374151;
   background: var(--color-background-primary);
-  border: 0.5px solid var(--color-border-tertiary);
+  border: 1px solid var(--color-border-tertiary);
   border-radius: var(--border-radius-md);
   padding: 6px 12px;
   cursor: pointer;
@@ -205,7 +205,7 @@ const groupedProcedures = computed(() => {
   right: 0;
   top: calc(100% + 6px);
   background: #fff;
-  border: 0.5px solid var(--color-border-tertiary);
+  border: 1px solid var(--color-border-tertiary);
   border-radius: var(--border-radius-lg);
   box-shadow: 0 4px 16px rgba(0,0,0,0.1);
   padding: 0.75rem 1rem;
@@ -271,7 +271,7 @@ const groupedProcedures = computed(() => {
   align-items: center;
   gap: 12px;
   background: var(--color-background-primary);
-  border: 0.5px solid var(--color-border-tertiary);
+  border: 1px solid var(--color-border-tertiary);
   border-radius: var(--border-radius-lg);
   padding: 13px 16px;
   margin-bottom: 6px;
