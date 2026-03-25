@@ -9,11 +9,15 @@
 
       <nav class="sidebar-nav">
         <p class="sidebar-section-label">Overview</p>
+        <RouterLink to="/admin" class="sidebar-link" :class="{ active: route.path === '/admin' }">
+          <fa icon="gauge-high" class="me-2" />Dashboard
+        </RouterLink>
+
+        <p class="sidebar-section-label">Manage</p>
         <RouterLink to="/admin/tenants" class="sidebar-link" :class="{ active: isActive('/admin/tenants') }">
           <fa icon="building" class="me-2" />Tenants
         </RouterLink>
 
-        <p class="sidebar-section-label">Manage</p>
         <RouterLink to="/admin/users" class="sidebar-link" :class="{ active: isActive('/admin/users') }">
           <fa icon="users" class="me-2" />Users
         </RouterLink>

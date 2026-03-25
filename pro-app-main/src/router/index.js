@@ -136,7 +136,7 @@ const routes = [
     component: AdminDashboard,
     meta: { requiresAuth: true, isAdmin: true },
     children: [
-      { path: '', name: 'admin', redirect: { name: 'admin-tenants' } },
+      { path: '', name: 'admin-overview', component: () => import('../views/admin/AdminOverview.vue') },
       { path: 'tenants',   name: 'admin-tenants',    component: () => import('../views/admin/AdminTenants.vue') },
       { path: 'users',     name: 'admin-users',      component: () => import('../views/admin/AdminUsers.vue') },
       { path: 'procedures',name: 'admin-procedures', component: () => import('../views/admin/AdminProcedures.vue') },
