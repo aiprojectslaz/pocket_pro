@@ -181,9 +181,9 @@ async function performSearch() {
     white-space: nowrap;
   }
 
-  /* Nav links */
+  /* Nav links — !important beats Bootstrap's --bs-nav-link-color */
   .nav-link {
-    color: #374151;
+    color: #374151 !important;
     font-size: 0.9rem;
     padding: 0.4rem 0.75rem;
     border-radius: 6px;
@@ -191,7 +191,7 @@ async function performSearch() {
 
     &:hover {
       background: var(--brand-primary-light);
-      color: var(--brand-primary);
+      color: var(--brand-primary) !important;
     }
   }
 
@@ -224,20 +224,22 @@ async function performSearch() {
     }
   }
 
+  /* Buttons — !important beats Bootstrap's --bs-btn-color / --bs-btn-bg */
   .btn-outline-brand {
-    border-color: var(--brand-primary);
-    color: var(--brand-primary);
+    border-color: var(--brand-primary) !important;
+    color: var(--brand-primary) !important;
+    background-color: transparent !important;
     font-size: 0.875rem;
     &:hover {
-      background: var(--brand-primary);
-      color: #fff;
+      background-color: var(--brand-primary) !important;
+      color: #fff !important;
     }
   }
 
   .btn-brand {
-    background: var(--brand-primary);
-    color: #fff;
-    border-color: var(--brand-primary);
+    background-color: var(--brand-primary) !important;
+    color: #fff !important;
+    border-color: var(--brand-primary) !important;
     font-size: 0.875rem;
     &:hover { opacity: 0.88; }
   }
