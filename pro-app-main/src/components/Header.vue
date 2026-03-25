@@ -35,6 +35,7 @@
           <li class="dropdown-item"><RouterLink to="/procedure-list" class="nav-link">Procedures</RouterLink></li>
           <li class="dropdown-item"><RouterLink to="/bookmarks" class="nav-link">Bookmarks</RouterLink></li>
           <li class="dropdown-item"><RouterLink to="/quizzes" class="nav-link">Quiz</RouterLink></li>
+          <li v-if="isAdmin" class="dropdown-item"><RouterLink to="/admin" class="nav-link">Admin</RouterLink></li>
           <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item" href="#">My profile</a></li>
           <li><a class="dropdown-item" href="#">Settings</a></li>
