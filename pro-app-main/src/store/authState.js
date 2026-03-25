@@ -23,6 +23,7 @@ export const authState = reactive({
       this.session = data.session
       if (data.session?.user?.email) {
         localStorage.setItem('username', data.session.user.email)
+        localStorage.setItem('jwt', data.session.access_token)
       }
     })
 
@@ -30,6 +31,7 @@ export const authState = reactive({
       this.session = session
       if (session?.user?.email) {
         localStorage.setItem('username', session.user.email)
+        localStorage.setItem('jwt', session.access_token)
       } else {
         localStorage.removeItem('username')
         localStorage.removeItem('jwt')

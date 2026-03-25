@@ -83,6 +83,7 @@ export default {
         if (error) throw error;
 
         authState.session = data.session;
+        localStorage.setItem('jwt', data.session.access_token);
         this.$store.dispatch('login', data.session.access_token);
         this.$router.push('/procedure-list');
       } catch (error) {
