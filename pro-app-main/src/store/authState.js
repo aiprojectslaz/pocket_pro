@@ -1,6 +1,7 @@
 // src/store/authState.js
 import { reactive } from 'vue'
 import { supabase } from '@/lib/supabase'
+import { applyTenantForUser } from '@/utils/tenant'
 
 export const authState = reactive({
   session: null,
@@ -32,6 +33,8 @@ export const authState = reactive({
       if (session?.user?.email) {
         localStorage.setItem('username', session.user.email)
         localStorage.setItem('jwt', session.access_token)
+        // Re-apply tenant CSS variables on page refresh / tab restore
+        applyTenantForUser(session.user.id)
       } else {
         localStorage.removeItem('username')
         localStorage.removeItem('jwt')

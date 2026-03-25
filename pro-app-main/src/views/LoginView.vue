@@ -59,6 +59,7 @@
 <script>
 import { authState } from '@/store/authState';
 import { supabase } from '@/lib/supabase';
+import { applyTenantForUser } from '@/utils/tenant';
 
 export default {
   data() {
@@ -85,6 +86,7 @@ export default {
         authState.session = data.session;
         localStorage.setItem('jwt', data.session.access_token);
         this.$store.dispatch('login', data.session.access_token);
+        await applyTenantForUser(data.session.user.id);
         this.$router.push('/procedure-list');
       } catch (error) {
         this.errorMessage = 'Login failed. Please check your credentials and try again.';
