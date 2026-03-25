@@ -4,11 +4,23 @@
   <nav class="app-header navbar navbar-expand-lg">
     <div class="container-fluid">
 
-      <!-- Brand: logo + product name + org pill -->
+      <!-- Brand: logo icon + org name + org pill -->
       <RouterLink to="/" class="navbar-brand d-flex align-items-center gap-2">
-        <img src="@/assets/logos/Logo1_BlueBG_cropped.png" height="36" alt="Pocket Procedures" loading="lazy" />
-        <span class="product-name">Pocket Procedures</span>
-        <span class="org-pill">Toronto Police Service</span>
+        <!-- Tenant logo if set, else initials box -->
+        <img
+          v-if="tenant?.logo"
+          :src="tenant.logo"
+          height="36"
+          :alt="orgName"
+          loading="lazy"
+          class="tenant-logo"
+        />
+        <span v-else class="logo-initials" aria-hidden="true">
+          {{ initials }}
+        </span>
+
+        <span class="product-name">{{ orgName }}</span>
+        <span class="org-pill">{{ orgName }}</span>
       </RouterLink>
 
       <!-- Search bar (desktop, logged-in) -->
@@ -18,7 +30,7 @@
           v-model="searchQuery"
           @keyup.enter="performSearch"
           class="form-control form-control-sm"
-          placeholder="Search procedures…"
+          :placeholder="`Search ${contentLabel.toLowerCase()}s…`"
         />
         <button @click="performSearch" class="btn btn-sm btn-ghost ms-1">
           <fa icon="search" />
@@ -41,10 +53,12 @@
       <!-- Collapsible nav -->
       <div class="collapse navbar-collapse" id="navbarMain">
 
-        <!-- Center nav links -->
+        <!-- Nav links -->
         <ul class="navbar-nav me-auto mb-2 mb-lg-0" v-if="isLoggedIn">
           <li class="nav-item">
-            <RouterLink to="/procedure-list" class="nav-link" active-class="nav-link-active">Procedures</RouterLink>
+            <RouterLink to="/procedure-list" class="nav-link" active-class="nav-link-active">
+              {{ tenant?.content_label_plural ?? 'Procedures' }}
+            </RouterLink>
           </li>
           <li class="nav-item">
             <RouterLink to="/bookmarks" class="nav-link" active-class="nav-link-active">Bookmarks</RouterLink>
@@ -64,7 +78,7 @@
             v-model="searchQuery"
             @keyup.enter="performSearch"
             class="form-control form-control-sm me-1"
-            placeholder="Search procedures…"
+            :placeholder="`Search ${contentLabel.toLowerCase()}s…`"
           />
           <button @click="performSearch" class="btn btn-sm btn-outline-secondary">
             <fa icon="search" />
@@ -101,48 +115,54 @@
 </header>
 </template>
 
-<script>
-import api from '@/services/api';
-import { authState } from '@/store/authState';
+<script setup>
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import api from '@/services/api'
+import { authState } from '@/store/authState'
+import { useTenant } from '@/composables/useTenant'
 
-export default {
-  data() {
-    return {
-      searchQuery: '',
-    };
-  },
-  computed: {
-    isLoggedIn() {
-      return authState.isLoggedIn;
-    },
-  },
-  methods: {
-    async logout() {
-      await authState.logout();
-      this.$router.push('/login');
-    },
-    async performSearch() {
-      if (!this.searchQuery.trim()) return;
-      try {
-        const response = await api.getProcedures();
-        const q = this.searchQuery.toLowerCase();
-        const results = (response.data || []).filter(p => {
-          const a = p.attributes;
-          return (a.name || '').toLowerCase().includes(q) ||
-                 (a.procedure_number || '').toLowerCase().includes(q) ||
-                 (a.rationale || '').toLowerCase().includes(q);
-        });
-        this.$router.push({
-          name: 'search-results',
-          query: { q: this.searchQuery },
-          state: { results: { data: results } },
-        });
-      } catch (error) {
-        console.error('Error performing search:', error);
-      }
-    },
-  },
-};
+const router = useRouter()
+const searchQuery = ref('')
+const { tenant, orgName, contentLabel } = useTenant()
+
+const isLoggedIn = computed(() => authState.isLoggedIn)
+
+// First 2 letters of org name for the fallback initials box
+const initials = computed(() =>
+  orgName.value
+    .split(' ')
+    .slice(0, 2)
+    .map(w => w[0])
+    .join('')
+    .toUpperCase()
+)
+
+async function logout() {
+  await authState.logout()
+  router.push('/login')
+}
+
+async function performSearch() {
+  if (!searchQuery.value.trim()) return
+  try {
+    const response = await api.getProcedures()
+    const q = searchQuery.value.toLowerCase()
+    const results = (response.data || []).filter(p => {
+      const a = p.attributes
+      return (a.name || '').toLowerCase().includes(q) ||
+             (a.procedure_number || '').toLowerCase().includes(q) ||
+             (a.rationale || '').toLowerCase().includes(q)
+    })
+    router.push({
+      name: 'search-results',
+      query: { q: searchQuery.value },
+      state: { results: { data: results } },
+    })
+  } catch (error) {
+    console.error('Error performing search:', error)
+  }
+}
 </script>
 
 <style scoped lang="scss">
@@ -156,6 +176,30 @@ export default {
     padding: 0.5rem 0;
   }
 
+  /* Tenant logo image */
+  .tenant-logo {
+    height: 36px;
+    width: auto;
+    border-radius: 4px;
+  }
+
+  /* Fallback initials box */
+  .logo-initials {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: var(--brand-primary);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    border-radius: 6px;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+  }
+
+  /* Product / org name text */
   .product-name {
     font-size: 1rem;
     font-weight: 600;
@@ -163,6 +207,7 @@ export default {
     white-space: nowrap;
   }
 
+  /* Org name pill */
   .org-pill {
     display: inline-block;
     background: var(--brand-primary);
@@ -175,6 +220,7 @@ export default {
     white-space: nowrap;
   }
 
+  /* Nav links */
   .nav-link {
     color: #374151;
     font-size: 0.9rem;
@@ -195,6 +241,7 @@ export default {
     font-weight: 600;
   }
 
+  /* Search */
   .search-bar {
     max-width: 320px;
 
