@@ -59,10 +59,17 @@
           <li class="nav-item">
             <RouterLink to="/quizzes" class="nav-link" active-class="nav-link-active">Quiz</RouterLink>
           </li>
-          <li class="nav-item">
-            <RouterLink to="/admin" class="nav-link" active-class="nav-link-active">Dashboard</RouterLink>
-          </li>
         </ul>
+
+        <!-- Admin link — only visible to admins, placed between nav links and Account -->
+        <RouterLink
+          v-if="isAdmin"
+          to="/admin"
+          class="nav-link nav-link-admin me-2"
+          active-class="nav-link-admin-active"
+        >
+          <fa icon="shield-halved" class="me-1" />Admin
+        </RouterLink>
 
         <!-- Mobile search -->
         <div class="d-flex d-lg-none mb-2 px-1" v-if="isLoggedIn">
@@ -120,6 +127,7 @@ const searchQuery = ref('')
 const { tenant, orgName, contentLabel } = useTenant()
 
 const isLoggedIn = computed(() => authState.isLoggedIn)
+const isAdmin = computed(() => authState.isAdmin)
 
 
 async function logout() {
@@ -245,6 +253,30 @@ async function performSearch() {
   .navbar-toggler {
     color: var(--brand-primary);
     padding: 0.25rem 0.5rem;
+  }
+
+  /* Admin link — danger tint */
+  .nav-link-admin {
+    color: #dc2626;
+    font-size: 0.9rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid rgba(220, 38, 38, 0.25);
+    background: rgba(220, 38, 38, 0.05);
+    transition: background 0.15s, border-color 0.15s;
+    white-space: nowrap;
+
+    &:hover {
+      background: rgba(220, 38, 38, 0.1);
+      border-color: rgba(220, 38, 38, 0.4);
+      color: #b91c1c;
+    }
+  }
+
+  .nav-link-admin-active {
+    background: rgba(220, 38, 38, 0.12) !important;
+    border-color: rgba(220, 38, 38, 0.5) !important;
+    font-weight: 600;
   }
 }
 </style>

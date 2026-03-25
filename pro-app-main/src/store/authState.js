@@ -18,6 +18,10 @@ export const authState = reactive({
     return !!this.session
   },
 
+  get isAdmin() {
+    return this.session?.user?.app_metadata?.role === 'admin'
+  },
+
   // Call once in main.js to sync session on page load and listen for changes.
   init() {
     supabase.auth.getSession().then(({ data }) => {

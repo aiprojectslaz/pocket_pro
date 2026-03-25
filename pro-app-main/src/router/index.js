@@ -10,7 +10,7 @@ import AppendixItem from '@/components/AppendixItem.vue';
 import SearchResultsView from '@/views/SearchResultsView.vue';
 import Quiz from '@/components/Quiz.vue';
 import AdminDashboard from '@/views/AdminDashboard.vue';
-import { getAuthState } from '@/utils/auth';
+import { authState } from '@/store/authState';
 
 const routes = [
   {
@@ -133,9 +133,16 @@ const routes = [
   },
   {
     path: '/admin',
-    name: 'admin',
     component: AdminDashboard,
     meta: { requiresAuth: true, isAdmin: true },
+    children: [
+      { path: '', name: 'admin', redirect: { name: 'admin-tenants' } },
+      { path: 'tenants',   name: 'admin-tenants',    component: () => import('../views/admin/AdminTenants.vue') },
+      { path: 'users',     name: 'admin-users',      component: () => import('../views/admin/AdminUsers.vue') },
+      { path: 'procedures',name: 'admin-procedures', component: () => import('../views/admin/AdminProcedures.vue') },
+      { path: 'branding',  name: 'admin-branding',   component: () => import('../views/admin/AdminBranding.vue') },
+      { path: 'analytics', name: 'admin-analytics',  component: () => import('../views/admin/AdminAnalytics.vue') },
+    ],
   },
   {
     path: '/:pathMatch(.*)*',
@@ -150,8 +157,6 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const authState = getAuthState();
-
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!authState.isLoggedIn) {
       next('/login');
