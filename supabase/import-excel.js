@@ -247,10 +247,10 @@ procedures.forEach(p => {
 // 3 ── Sub-procedures ─────────────────────────────────────────────────────────
 out.push('-- 3. Sub-procedures');
 subProcRows.forEach(r => {
-  const procNum = String(r[2]);
+  const procNum = procNumById[r[1]];
   const name    = r[5];
   const blocks  = textToBlocks(r[6]);
-  if (!name || !blocks.length) return;
+  if (!procNum || !name || !blocks.length) return;
   out.push(`INSERT INTO sub_procedures (name, description, procedure_id) VALUES (`);
   out.push(`  ${sq(name)},`);
   out.push(`  ${jsonb(blocks)},`);
@@ -262,11 +262,11 @@ out.push('');
 // 4 ── Main roles ─────────────────────────────────────────────────────────────
 out.push('-- 4. Main roles');
 mainRoleRows.forEach(r => {
-  const procNum  = String(r[2]);
+  const procNum  = procNumById[r[1]];
   const match    = String(r[5]).match(ROLE_RE);
   const roleName = match ? match[1] : r[5];
   const blocks   = textToBlocks(r[6]);
-  if (!blocks.length) return;
+  if (!procNum || !blocks.length) return;
   out.push(`INSERT INTO main_roles (role_title, description, procedure_id) VALUES (`);
   out.push(`  ${sq(roleName)},`);
   out.push(`  ${jsonb(blocks)},`);
