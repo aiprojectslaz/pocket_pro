@@ -35,7 +35,7 @@ export default {
   async getProcedures() {
     const { data, error } = await supabase
       .from('procedures')
-      .select('*')
+      .select('*, chapter:chapters(id, title)')
       .order('procedure_number')
     if (error) throw error
     return wrapList(data)
@@ -46,6 +46,7 @@ export default {
       .from('procedures')
       .select(`
         *,
+        chapter:chapters(id, title),
         definitions:procedure_definitions ( definition:definitions(*) ),
         sub_procedures (*),
         appendices (*),

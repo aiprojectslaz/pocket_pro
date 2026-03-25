@@ -95,11 +95,7 @@ const routes = [
     name: 'login',
     component: () => import('../views/LoginView.vue'),
   },
-  {
-    path: '/logout',
-    name: 'logout',
-    component: () => import('../views/LoginView.vue'),
-  },
+
   {
     path: '/search',
     name: 'search-results',
@@ -141,6 +137,11 @@ const routes = [
     name: 'modal',
     component: Modal,
     meta: { requiresAuth: true, isAdmin: true },
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'not-found',
+    component: () => import('../views/NotFoundView.vue'),
   },
 ];
 

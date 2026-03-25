@@ -1,3 +1,17 @@
+/* ── Brand / white-label variables ──────────────────────────────────────────
+   To white-label: change --brand-primary and --brand-org-name only.
+   All accent colors are derived from --brand-primary via rgba tints.
+   ─────────────────────────────────────────────────────────────────────────── */
+:root {
+  --brand-primary:        #1a2744;   /* TPS navy — change per tenant */
+  --brand-primary-rgb:    26, 39, 68;
+  --brand-primary-light:  rgba(var(--brand-primary-rgb), 0.08);  /* nav active bg */
+  --brand-primary-muted:  rgba(var(--brand-primary-rgb), 0.55);  /* muted text */
+  --brand-primary-border: rgba(var(--brand-primary-rgb), 0.18);  /* border accent */
+  --brand-org-name:       "Toronto Police Service";              /* pill label */
+  --brand-content-label:  "Procedure";                           /* per-industry term */
+}
+
 /* color palette from <https://github.com/vuejs/theme> */
 :root {
   --vt-c-white: #ffffff;
