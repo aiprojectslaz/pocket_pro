@@ -4,6 +4,7 @@
    ─────────────────────────────────────────────────────────────────────────── */
 :root {
   --brand-primary:        #1a2744;   /* TPS navy — change per tenant */
+  --brand-secondary:      #2d3f6b;   /* lighter shade — change per tenant */
   --brand-primary-rgb:    26, 39, 68;
   --brand-primary-light:  rgba(var(--brand-primary-rgb), 0.08);  /* nav active bg */
   --brand-primary-muted:  rgba(var(--brand-primary-rgb), 0.55);  /* muted text */
