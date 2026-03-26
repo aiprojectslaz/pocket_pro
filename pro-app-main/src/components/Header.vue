@@ -110,6 +110,21 @@
     </div>
   </nav>
 
+
+  <!-- Mobile full-width search strip (shown only on mobile via responsive.css) -->
+  <div class="mobile-search-strip" v-if="isLoggedIn" style="display:none">
+    <input
+      type="text"
+      v-model="searchQuery"
+      @keyup.enter="performSearch"
+      class="mobile-search-input"
+      :placeholder="`Search ${contentLabel.toLowerCase()}s…`"
+    />
+    <button @click="performSearch" class="mobile-search-btn">
+      <fa icon="search" />
+    </button>
+  </div>
+
 </header>
 </template>
 
@@ -233,6 +248,41 @@ async function performSearch() {
   .navbar-toggler {
     color: var(--brand-primary);
     padding: 0.25rem 0.5rem;
+  }
+
+  /* Mobile search strip */
+  .mobile-search-strip {
+    padding: 0.5rem 1rem;
+    background: #ffffff;
+    border-top: 1px solid #f3f4f6;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .mobile-search-input {
+    flex: 1;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 0.6rem 0.875rem;
+    font-size: 0.9rem;
+    outline: none;
+    min-height: 44px;
+    &:focus { border-color: var(--brand-primary); }
+  }
+
+  .mobile-search-btn {
+    width: 44px;
+    height: 44px;
+    border: none;
+    background: var(--brand-primary);
+    color: #fff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    &:hover { opacity: 0.88; }
   }
 
   /* Admin link — danger tint */

@@ -1,0 +1,93 @@
+/* ─────────────────────────────────────────────────────────
+   Pocket Procedures — Responsive stylesheet
+   Breakpoints:
+     Mobile  : < 768px
+     Tablet  : 768px – 1024px
+     Desktop : > 1024px
+   ───────────────────────────────────────────────────────── */
+
+/* ── Bottom nav: hidden by default (desktop/tablet) ──── */
+.bottom-nav {
+  display: none !important;
+}
+
+/* ════════════════════════════════════════════════════════
+   MOBILE  < 768px
+   ════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+
+  /* Show bottom nav */
+  .bottom-nav {
+    display: flex !important;
+  }
+
+  /* Pad main content so it doesn't hide behind bottom nav */
+  .content {
+    padding-bottom: 64px;
+  }
+
+  /* Hide Bootstrap navbar collapse, toggler, and desktop account button */
+  .navbar-toggler,
+  #navbarMain {
+    display: none !important;
+  }
+
+  /* Show mobile search strip below the header */
+  .mobile-search-strip {
+    display: flex !important;
+  }
+
+  /* Minimum 44px tap targets for field use */
+  .procedure-card {
+    min-height: 44px;
+  }
+
+  .bottom-nav-item {
+    min-height: 44px;
+  }
+
+  /* Compact procedure list on mobile */
+  .procedures-list {
+    padding: 1rem 0.75rem !important;
+  }
+
+  .proc-name {
+    white-space: normal !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════
+   TABLET  768px – 1024px
+   ════════════════════════════════════════════════════════ */
+@media (min-width: 768px) and (max-width: 1024px) {
+
+  /* Show chapter sidebar, hide filter dropdown button */
+  .chapter-sidebar {
+    display: flex !important;
+  }
+
+  .filter-wrap {
+    display: none !important;
+  }
+
+  /* Two-column layout for procedures */
+  .procedures-layout {
+    align-items: flex-start;
+  }
+}
+
+/* ════════════════════════════════════════════════════════
+   DESKTOP  > 1024px
+   ════════════════════════════════════════════════════════ */
+@media (min-width: 1025px) {
+
+  /* Hide chapter sidebar — filter button used instead */
+  .chapter-sidebar {
+    display: none !important;
+  }
+
+  /* Hide mobile search strip */
+  .mobile-search-strip {
+    display: none !important;
+  }
+}

@@ -1,80 +1,115 @@
 <template>
   <div class="procedures-list">
 
-    <!-- Page header -->
-    <div class="list-header">
-      <h1 class="list-title">{{ contentLabelPlural }}</h1>
-      <div class="filter-wrap" ref="filterWrap">
-        <button class="filter-btn" @click="filterOpen = !filterOpen">
-          <fa icon="bars-staggered" class="filter-icon" />
-          Filter
-        </button>
+    <!-- Two-column layout wrapper (tablet: sidebar + content, others: content only) -->
+    <div class="procedures-layout">
 
-        <!-- Filter dropdown -->
-        <div v-if="filterOpen" class="filter-panel">
-          <p class="filter-section-label">Chapters</p>
-          <label
-            v-for="ch in allChapters"
-            :key="ch"
-            class="filter-checkbox-row"
+      <!-- ── Tablet sidebar (hidden on mobile/desktop via responsive.css) ── -->
+      <aside class="chapter-sidebar" style="display:none">
+        <p class="sidebar-label">Chapters</p>
+        <button
+          v-for="ch in allChapters"
+          :key="ch"
+          class="sidebar-chapter-btn"
+          :class="{ 'sidebar-chapter-btn--active': selectedChapters.includes(ch) }"
+          @click="toggleChapter(ch)"
+        >{{ ch }}</button>
+
+        <div class="sidebar-divider"></div>
+
+        <p class="sidebar-label">Filter</p>
+        <button
+          class="sidebar-chapter-btn"
+          :class="{ 'sidebar-chapter-btn--active': amendedOnly }"
+          @click="amendedOnly = !amendedOnly"
+        >Amended only</button>
+        <button
+          v-if="amendedOnly"
+          class="sidebar-clear-btn"
+          @click="amendedOnly = false"
+        >Clear</button>
+      </aside>
+
+      <!-- ── Main content ── -->
+      <div class="procedures-main">
+
+        <!-- Page header -->
+        <div class="list-header">
+          <h1 class="list-title">{{ contentLabelPlural }}</h1>
+          <div class="filter-wrap" ref="filterWrap">
+            <button class="filter-btn" @click="filterOpen = !filterOpen">
+              <fa icon="bars-staggered" class="filter-icon" />
+              Filter
+            </button>
+
+            <!-- Filter dropdown -->
+            <div v-if="filterOpen" class="filter-panel">
+              <p class="filter-section-label">Chapters</p>
+              <label
+                v-for="ch in allChapters"
+                :key="ch"
+                class="filter-checkbox-row"
+              >
+                <input type="checkbox" :value="ch" v-model="selectedChapters" />
+                <span>{{ ch }}</span>
+              </label>
+              <div class="filter-divider"></div>
+              <label class="filter-checkbox-row">
+                <input type="checkbox" v-model="amendedOnly" />
+                <span>Amended only</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading -->
+        <div v-if="loading" class="loading-state">
+          <div class="spinner-border spinner-border-sm text-secondary me-2" role="status"></div>
+          Loading…
+        </div>
+
+        <!-- Grouped procedure list -->
+        <template v-else>
+          <div
+            v-for="group in groupedProcedures"
+            :key="group.chapter"
+            class="chapter-group"
           >
-            <input type="checkbox" :value="ch" v-model="selectedChapters" />
-            <span>{{ ch }}</span>
-          </label>
-          <div class="filter-divider"></div>
-          <label class="filter-checkbox-row">
-            <input type="checkbox" v-model="amendedOnly" />
-            <span>Amended only</span>
-          </label>
-        </div>
-      </div>
-    </div>
+            <div class="chapter-heading">
+              <span>{{ group.chapter }}</span>
+            </div>
 
-    <!-- Loading -->
-    <div v-if="loading" class="loading-state">
-      <div class="spinner-border spinner-border-sm text-secondary me-2" role="status"></div>
-      Loading…
-    </div>
+            <RouterLink
+              v-for="proc in group.items"
+              :key="proc.id"
+              :to="{ name: 'procedure-item', params: { id: proc.id } }"
+              class="procedure-card"
+            >
+              <span class="proc-number">{{ proc.attributes.procedure_number }}</span>
 
-    <!-- Grouped procedure list -->
-    <template v-else>
-      <div
-        v-for="group in groupedProcedures"
-        :key="group.chapter"
-        class="chapter-group"
-      >
-        <div class="chapter-heading">
-          <span>{{ group.chapter }}</span>
-        </div>
+              <div class="proc-info">
+                <span class="proc-name">{{ proc.attributes.name }}</span>
+                <span class="proc-chapter" v-if="proc.attributes.chapter?.title">
+                  {{ proc.attributes.chapter.title }}
+                </span>
+              </div>
 
-        <RouterLink
-          v-for="proc in group.items"
-          :key="proc.id"
-          :to="{ name: 'procedure-item', params: { id: proc.id } }"
-          class="procedure-card"
-        >
-          <span class="proc-number">{{ proc.attributes.procedure_number }}</span>
+              <span
+                v-if="proc.attributes.status === 'Amended'"
+                class="proc-amended"
+              >Amended</span>
 
-          <div class="proc-info">
-            <span class="proc-name">{{ proc.attributes.name }}</span>
-            <span class="proc-chapter" v-if="proc.attributes.chapter?.title">
-              {{ proc.attributes.chapter.title }}
-            </span>
+              <span class="proc-chevron">›</span>
+            </RouterLink>
           </div>
 
-          <span
-            v-if="proc.attributes.status === 'Amended'"
-            class="proc-amended"
-          >Amended</span>
+          <div v-if="groupedProcedures.length === 0" class="empty-state">
+            No {{ contentLabelPlural.toLowerCase() }} match the current filters.
+          </div>
+        </template>
 
-          <span class="proc-chevron">›</span>
-        </RouterLink>
-      </div>
-
-      <div v-if="groupedProcedures.length === 0" class="empty-state">
-        No {{ contentLabelPlural.toLowerCase() }} match the current filters.
-      </div>
-    </template>
+      </div><!-- /procedures-main -->
+    </div><!-- /procedures-layout -->
 
   </div>
 </template>
@@ -113,6 +148,18 @@ onUnmounted(() => {
 function onOutsideClick(e) {
   if (filterWrap.value && !filterWrap.value.contains(e.target)) {
     filterOpen.value = false
+  }
+}
+
+// Sidebar chapter toggle (tablet): clicking an active chapter deselects it;
+// clicking an inactive one selects only that chapter
+function toggleChapter(ch) {
+  if (selectedChapters.value.includes(ch)) {
+    // deselect: if it's the last one, restore all
+    const next = selectedChapters.value.filter(c => c !== ch)
+    selectedChapters.value = next.length > 0 ? next : [...allChapters.value]
+  } else {
+    selectedChapters.value = [ch]
   }
 }
 
@@ -160,6 +207,76 @@ const groupedProcedures = computed(() => {
   max-width: 780px;
   margin: 0 auto;
   padding: 1.75rem 1rem;
+}
+
+/* ── Layout ───────────────────────────────────── */
+.procedures-layout {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+.procedures-main {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Tablet sidebar ───────────────────────────── */
+.chapter-sidebar {
+  width: 160px;
+  flex-shrink: 0;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 0.25rem; /* align with list header text */
+}
+
+.sidebar-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #9ca3af;
+  margin: 0 0 4px;
+  padding: 0 0.25rem;
+}
+
+.sidebar-chapter-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0.5rem 0.625rem;
+  font-size: 12px;
+  font-weight: 500;
+  color: #374151;
+  border-radius: 6px;
+  cursor: pointer;
+  min-height: 44px;
+  transition: background 0.12s, color 0.12s;
+
+  &:hover { background: #f3f4f6; }
+}
+
+.sidebar-chapter-btn--active {
+  background: #1a2744 !important;
+  color: #fff !important;
+}
+
+.sidebar-divider {
+  height: 1px;
+  background: #f3f4f6;
+  margin: 0.5rem 0;
+}
+
+.sidebar-clear-btn {
+  background: none;
+  border: none;
+  font-size: 11px;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 0.25rem 0.625rem;
+  &:hover { color: #374151; }
 }
 
 /* ── Page header ──────────────────────────────── */
